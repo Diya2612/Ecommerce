@@ -1,0 +1,1 @@
+export { default as TierListPage } from './TierListPage';

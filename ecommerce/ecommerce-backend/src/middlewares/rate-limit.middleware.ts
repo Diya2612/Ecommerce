@@ -1,0 +1,140 @@
+import rateLimit, { RateLimitExceededEventHandler, Store } from 'express-rate-limit';
+import { RedisStore } from 'rate-limit-redis';
+import { Request, RequestHandler } from 'express';
+import { logger } from '../utils/logging/logger';
+import { redisClient, isRedisReady } from '../utils/database/redis';
+import { RequestWithId } from '../interfaces';
+import { isDevelopment, isProduction } from '../utils/config/validate-env';
+
+/**
+ * @module RateLimitMiddleware
+ * @description Implements distributed throttling strategies to prevent abuse and ensure API availability.
+ * Utilizes Redis in production for cross-instance state synchronization, falling back to in-memory locally.
+ */
+const createStore = (): Store | undefined => {
+  // Only use Redis in production when connected
+  if (isProduction && isRedisReady()) {
+    logger.info('Using Redis store for rate limiting');
+    return new RedisStore({
+      sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+      prefix: 'rl:', // Rate limit key prefix
+    });
+  }
+
+  // Development and test use in-memory store (default)
+  if (!isProduction) {
+    logger.debug('Using in-memory store for rate limiting (non-production)');
+  }
+  return undefined;
+};
+
+const createRateLimitResponse = (message: string, retryAfter: string, requestId: string) => ({
+  success: false,
+  error: {
+    code: 'RATE_LIMIT_EXCEEDED',
+    message,
+    requestId,
+    timestamp: new Date().toISOString(),
+    retryAfter,
+  },
+});
+
+const createRateLimitHandler =
+  (message: string, retryAfter: string): RateLimitExceededEventHandler =>
+  (req, res) => {
+    const requestWithId = req as RequestWithId;
+    logger.warn(`Rate limit exceeded for IP: ${req.ip}`, {
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      path: req.path,
+      requestId: requestWithId.requestId,
+      message,
+      retryAfter,
+    });
+
+    res
+      .status(429)
+      .json(createRateLimitResponse(message, retryAfter, requestWithId.requestId || 'unknown'));
+  };
+const skipDevOrTest = (req: Request) =>
+  isDevelopment && (req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1'); // Rate limiting ENABLED for production
+
+/**
+ * @description Strict throttling for authentication boundaries to mitigate brute-force credential stuffing.
+ */
+export const authRateLimit: RequestHandler = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  message: createRateLimitResponse(
+    'Too many authentication attempts, please try again later.',
+    '15 minutes',
+    'unknown',
+  ),
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: createStore(),
+  skip: skipDevOrTest, // Skip rate limiting in development environment
+  handler: createRateLimitHandler(
+    'Too many authentication attempts, please try again later.',
+    '15 minutes',
+  ),
+});
+
+/**
+ * @description Standard operational throttling for general API consumption.
+ */
+export const apiRateLimit: RequestHandler = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100,
+  message: createRateLimitResponse(
+    'Too many requests from this IP, please try again later.',
+    '1 minute',
+    'unknown',
+  ),
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: createStore(),
+  skip: skipDevOrTest,
+  handler: createRateLimitHandler(
+    'Too many requests from this IP, please try again later.',
+    '1 minute',
+  ),
+});
+
+/**
+ * @description Aggressive throttling for ingestion endpoints to prevent resource exhaustion and storage saturation.
+ */
+export const uploadRateLimit: RequestHandler = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 10,
+  message: createRateLimitResponse(
+    'Too many upload requests, please try again later.',
+    '1 minute',
+    'unknown',
+  ),
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: createStore(),
+  skip: skipDevOrTest,
+  handler: createRateLimitHandler('Too many upload requests, please try again later.', '1 minute'),
+});
+
+
+
+/**
+ * @description Throttling for cart mutation endpoints (add, update, remove) to prevent abuse.
+ */
+export const cartMutationRateLimit: RequestHandler = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 30, // 30 cart mutations per minute per IP
+  message: createRateLimitResponse(
+    'Too many cart operations, please slow down.',
+    '1 minute',
+    'unknown',
+  ),
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: createStore(),
+  skip: skipDevOrTest,
+  handler: createRateLimitHandler('Too many cart operations, please slow down.', '1 minute'),
+});

@@ -1,0 +1,6 @@
+title,slug,description,type,status,sort_order,banner_image_url,mobile_banner_image_url,meta_title,meta_description,tags
+Summer Collection,summer-collection,Best products for summer season,manual,active,manual,https://example.com/images/summer-banner.jpg,https://example.com/images/summer-banner-mobile.jpg,Summer Collection - Shop Now,Browse our summer collection,"summer, seasonal"
+Electronics,electronics,All electronic products and gadgets,manual,active,best-selling,https://example.com/images/electronics-banner.jpg,,Electronics - Top Deals,Shop the best electronics,"electronics, tech"
+New Arrivals,new-arrivals,Latest products just added,automated,active,created-desc,,,New Arrivals - Fresh Picks,Check out our newest products,"new, trending"
+Clearance Sale,clearance-sale,Discounted products on clearance,manual,inactive,price-asc,https://example.com/images/clearance-banner.jpg,https://example.com/images/clearance-banner-mobile.jpg,Clearance Sale - Big Savings,Save big on clearance items,"sale, discount"
+Premium Range,premium-range,Our premium product collection,manual,active,price-desc,https://example.com/images/premium-banner.jpg,,Premium Range - Luxury Items,Explore luxury and premium products,"premium, luxury"

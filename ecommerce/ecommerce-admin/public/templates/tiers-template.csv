@@ -1,0 +1,11 @@
+name,code,description,level,parent_code,priority,status
+Electronics,electronics,Electronic products and accessories,1,,0,active
+Computers,computers,Computing devices,2,electronics,1,active
+Laptops,laptops,Portable computers,3,computers,1,active
+Gaming Laptops,gaming-laptops,High-performance gaming laptops,4,laptops,1,active
+Desktops,desktops,Desktop computers,3,computers,2,active
+Accessories,accessories,Computer accessories,3,computers,3,active
+Home Appliances,home-appliances,Household appliances,1,,1,active
+Kitchen,kitchen,Kitchen appliances,2,home-appliances,1,active
+Refrigerators,refrigerators,Cooling appliances,3,kitchen,1,active
+Ovens,ovens,Cooking appliances,3,kitchen,2,active

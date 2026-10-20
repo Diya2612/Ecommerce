@@ -1,0 +1,6 @@
+name,type,statu
+VIP Customer,customer,true
+Summer Sale,product,true
+Tech Blog,blogs,true
+Urgent Order,order,true
+Holiday Discount,product,false

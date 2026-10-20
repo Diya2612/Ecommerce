@@ -1,0 +1,8 @@
+name,code,description,priority,status,match_type
+VIP Customers,vip-customers,High-value customers with large purchase history,critical,active,all
+Wholesale Buyers,wholesale-buyers,Customers who buy in bulk at wholesale prices,high,active,any
+Inactive Customers,inactive-customers,Customers with no orders in the last 90 days,normal,active,all
+New Signups,new-signups,Customers who registered in the last 30 days,low,active,any
+Premium Members,premium-members,Customers subscribed to the premium loyalty plan,high,active,all
+Corporate Accounts,,B2B corporate accounts with credit terms,normal,active,all
+Seasonal Shoppers,seasonal-shoppers,Customers who purchase only during sale seasons,low,inactive,any

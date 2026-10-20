@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    /* Language & Target */
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "jsx": "react-jsx",
+
+    /* Module System */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+
+    /* Enable Vite types (fixes import.meta.env typing) */
+    "types": ["vite/client"],
+
+    /* Build & Output */
+    "noEmit": true,
+    "skipLibCheck": true,
+
+    /* Strictness */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Additional Safety */
+    "noUncheckedSideEffectImports": true
+
+
+
+  },
+  "include": ["src", "src/vite-env.d.ts"],
+  "exclude": ["src/old/**/*"]
+}

@@ -1,0 +1,736 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* -----------------------------------
+   CSS VARIABLES - ORIGINAL ADMIN PANEL THEME
+----------------------------------- */
+:root {
+  --font-sans:
+    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+
+  /* Original Admin Panel Colors - Updated to #0E042F */
+  --primary-purple: #0E042F;
+  --primary-dark: #1a0d3d;
+  --primary-light: #a78bfa;
+
+  --bg-light: #f9fafb;
+  --bg-dark: #1a1a1a;
+
+  --card-bg: #ffffff;
+
+  --text-main: #111827;
+  --text-secondary: #4b5563;
+  --text-light: #9ca3af;
+  --text-white: #ffffff;
+  --text-lightgrey: #99a1af;
+
+  --sidebar-bg: #0E042F;
+  --sidebar-hover: #1a0d3d;
+  --sidebar-active: #1a0d3d;
+  --sidebar-text: var(--text-lightgrey);
+  --sidebar-text-active: var(--text-white);
+
+  --settings-bg: #0E042F;
+  --settings-bg-hover: #1a0d3d;
+
+  --radius-md: 12px;
+  --transition-default: 250ms ease;
+
+  /* Shadcn Variables - Aligned with Original Theme */
+  --radius: 0.625rem;
+  --background: 249 250 251;
+  /* #f9fafb */
+  --foreground: 17 24 39;
+  /* #111827 */
+  --card: 255 255 255;
+  --card-foreground: 17 24 39;
+  --popover: 255 255 255;
+  --popover-foreground: 17 24 39;
+  --primary: 46 16 101;
+  /* #2e1065 - Original purple */
+  --primary-foreground: 255 255 255;
+  --secondary: 243 244 246;
+  --secondary-foreground: 17 24 39;
+  --muted: 243 244 246;
+  --muted-foreground: 107 114 128;
+  --accent: 243 244 246;
+  --accent-foreground: 17 24 39;
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --border: 229 231 235;
+  --input: 229 231 235;
+  --ring: 167 139 250;
+  /* #a78bfa - Purple ring */
+  --chart-1: 167 139 250;
+  --chart-2: 139 92 246;
+  --chart-3: 124 58 237;
+  --chart-4: 109 40 217;
+  --chart-5: 91 33 182;
+}
+
+/* -----------------------------------
+   DARK MODE VARIABLES - ORIGINAL THEME
+----------------------------------- */
+.dark {
+  --bg-light: #0f0f0f;
+  --card-bg: #1b1b1b;
+  --text-main: #f3f4f6;
+  --text-secondary: #9ca3af;
+
+  /* Shadcn Dark Mode - Aligned with Original */
+  --background: 15 15 15;
+  --foreground: 243 244 246;
+  --card: 27 27 27;
+  --card-foreground: 243 244 246;
+  --popover: 27 27 27;
+  --popover-foreground: 243 244 246;
+  --primary: 167 139 250;
+  /* #a78bfa */
+  --primary-foreground: 46 16 101;
+  --secondary: 39 39 42;
+  --secondary-foreground: 243 244 246;
+  --muted: 39 39 42;
+  --muted-foreground: 156 163 175;
+  --accent: 39 39 42;
+  --accent-foreground: 243 244 246;
+  --destructive: 220 38 38;
+  --destructive-foreground: 243 244 246;
+  --border: 39 39 42;
+  --input: 39 39 42;
+  --ring: 167 139 250;
+  --chart-1: 139 92 246;
+  --chart-2: 167 139 250;
+  --chart-3: 196 181 253;
+  --chart-4: 221 214 254;
+  --chart-5: 237 233 254;
+}
+
+/* -----------------------------------
+   GLOBAL RESETS
+----------------------------------- */
+
+/* Hide native search clear button */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  display: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-light);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* -----------------------------------
+   AE ADMIN PANEL STYLES - UPDATED THEME
+----------------------------------- */
+.bg-admin-panel {
+  background-color: #0E042F;
+}
+
+/* SIDEBAR */
+.MenuItem {
+  color: var(--text-lightgrey);
+}
+
+.ActiveMenuItem {
+  color: var(--bg-light) !important;
+  /* font-weight: 600; */
+}
+
+.ActiveIcon {
+  color: var(--bg-light) !important;
+}
+
+.SidebarBtn {
+  width: 100%;
+  /* padding-left: 20px;
+  padding-right: 20px; */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 12px;
+  background-color: transparent;
+  color: var(--sidebar-text);
+  transition: var(--transition-default);
+}
+
+.SidebarBtn:hover {
+  background-color: var(--sidebar-hover);
+}
+
+.SidebarBtnActive {
+  background-color: var(--sidebar-active) !important;
+  color: var(--text-white) !important;
+}
+
+.HomeBtn,
+.SettingsBtn {
+  background-color: var(--settings-bg);
+  color: var(--text-white);
+}
+
+.SettingsBtn:hover {
+  background-color: var(--settings-bg-hover);
+}
+
+/* .ActiveBorder {
+  position: relative;
+}
+
+.ActiveBorder::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  background-color: var(--bg-light);
+  border-radius: 6px;
+} */
+
+/* HEADER */
+.SidebarBtn {
+  background-color: transparent;
+  color: var(--sidebar-text);
+  display: flex;
+  align-items: center;
+  transform-origin: left center;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.SidebarBtn:hover {
+  background-color: var(--sidebar-hover);
+  transform: translateX(4px) scale(1);
+}
+
+.SidebarIcon {
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.SidebarBtn:hover .SidebarIcon {
+  transform: scale(1.12);
+  color: var(--text-white);
+}
+
+.SidebarLabel {
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+  transform-origin: left center;
+}
+
+.SidebarBtn:hover .SidebarLabel {
+  transform: scale(1.05);
+  color: var(--text-white);
+}
+
+.SidebarBtnActive {
+  background-color: var(--sidebar-active) !important;
+  color: var(--text-white) !important;
+}
+
+.SidebarBtnActive .SidebarIcon,
+.SidebarBtnActive .SidebarLabel {
+  color: var(--text-white) !important;
+}
+
+.SubmenuWrapper {
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.SubmenuOpen {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.SubmenuClosed {
+  max-height: 0;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.15s ease-out;
+}
+
+/* -----------------------------------
+   CUSTOM SCROLLBAR (Beautiful UI)
+----------------------------------- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c3c3c3;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* -----------------------------------
+   UTILITY CLASSES
+----------------------------------- */
+
+/* Centered page container */
+.page-container {
+  @apply max-w-7xl mx-auto px-4 py-6;
+}
+
+/* Card wrapper */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+}
+
+/* Button styles */
+.btn-primary {
+  @apply bg-purple-700 hover:bg-purple-800 text-white py-2 px-4 rounded-lg transition-all;
+}
+
+.btn-danger {
+  @apply bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-all;
+}
+
+/* Input fields */
+.input {
+  @apply w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all;
+}
+
+/* Label styling */
+.label {
+  @apply text-sm font-medium text-gray-700 mb-1 block;
+}
+
+/* Error text */
+.error-text {
+  @apply text-red-500 text-xs mt-1;
+}
+
+/* Smooth hover scale for UI cards/buttons */
+.hover-scale {
+  transition: transform var(--transition-default);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Page fade-in animation */
+.page-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 250ms,
+    transform 250ms;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Map shadcn colors to use RGB format */
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+  --color-card: rgb(var(--card));
+  --color-card-foreground: rgb(var(--card-foreground));
+  --color-popover: rgb(var(--popover));
+  --color-popover-foreground: rgb(var(--popover-foreground));
+  --color-primary: rgb(var(--primary));
+  --color-primary-foreground: rgb(var(--primary-foreground));
+  --color-secondary: rgb(var(--secondary));
+  --color-secondary-foreground: rgb(var(--secondary-foreground));
+  --color-muted: rgb(var(--muted));
+  --color-muted-foreground: rgb(var(--muted-foreground));
+  --color-accent: rgb(var(--accent));
+  --color-accent-foreground: rgb(var(--accent-foreground));
+  --color-destructive: rgb(var(--destructive));
+  --color-destructive-foreground: rgb(var(--destructive-foreground));
+  --color-border: rgb(var(--border));
+  --color-input: rgb(var(--input));
+  --color-ring: rgb(var(--ring));
+  --color-chart-1: rgb(var(--chart-1));
+  --color-chart-2: rgb(var(--chart-2));
+  --color-chart-3: rgb(var(--chart-3));
+  --color-chart-4: rgb(var(--chart-4));
+  --color-chart-4: rgb(var(--chart-4));
+  --color-chart-5: rgb(var(--chart-5));
+
+  /* Custom Design Tokens */
+  --radius-card: 20px;
+  --radius-section: 20px;
+  --color-icon-muted: #A1A1A1;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+
+
+.quill {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: .75rem;
+  overflow: hidden;
+}
+
+.ql-toolbar {
+  background: #f8fafc;
+  border-radius: .75rem .75rem 0 0;
+  border: none !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding: .75rem .5rem !important;
+}
+
+.ql-container {
+  font-family: inherit;
+  font-size: .875rem;
+  border: none !important;
+}
+
+.ql-editor {
+  color: #0f172a;
+  min-height: var(--editor-min-height, 150px);
+  padding: 1rem !important;
+}
+
+.ql-editor.ql-blank:before {
+  color: #94a3b8;
+  font-style: normal;
+  left: 1rem;
+}
+
+.ql-toolbar button {
+  border-radius: .375rem !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  transition: background-color .2s !important;
+  display: inline-flex !important;
+}
+
+.ql-toolbar button:hover {
+  background: #e2e8f0 !important;
+}
+
+.ql-toolbar button.ql-active {
+  color: #4f46e5 !important;
+  background: #e0e7ff !important;
+}
+
+.ql-toolbar button svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.ql-toolbar .ql-stroke {
+  stroke: #475569 !important;
+}
+
+.ql-toolbar .ql-fill {
+  fill: #475569 !important;
+}
+
+.ql-toolbar button.ql-active .ql-stroke {
+  stroke: #4f46e5 !important;
+}
+
+.ql-toolbar button.ql-active .ql-fill {
+  fill: #4f46e5 !important;
+}
+
+/* -----------------------------------
+   REACT DAY PICKER OVERRIDES
+   Two months side by side calendar
+----------------------------------- */
+
+.rdp {
+  --rdp-cell-size: 40px;
+  --rdp-accent-color: #000000;
+  --rdp-background-color: #f3f4f6;
+  margin: 0;
+  padding: 0;
+}
+
+/* Main container for both months */
+.rdp-months {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 3rem !important;
+  padding: 1rem;
+  justify-items: center;
+}
+
+.rdp-month {
+  width: 100% !important;
+  max-width: 280px !important;
+}
+
+/* Month header with navigation */
+.rdp-caption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-bottom: 1.5rem;
+  min-height: 2rem;
+}
+
+.rdp-caption_label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: center;
+}
+
+/* Navigation buttons */
+.rdp-nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+}
+
+.rdp-nav_button {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  color: #374151;
+  transition: all 0.2s ease;
+}
+
+.rdp-nav_button:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.rdp-nav_button_previous {
+  position: absolute;
+  left: -40px;
+}
+
+.rdp-nav_button_next {
+  position: absolute;
+  right: -40px;
+}
+
+/* Weekday headers */
+.rdp-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.rdp-weekday {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-align: center;
+  padding: 0.25rem;
+  text-transform: none;
+}
+
+/* Calendar weeks */
+.rdp-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.rdp-day {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rdp-day_button {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  color: #111827;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  font-weight: 400;
+}
+
+.rdp-day_button:hover:not(.rdp-day_disabled) {
+  background: #f3f4f6;
+}
+
+/* Range start and end */
+.rdp-day_range_start .rdp-day_button,
+.rdp-day_range_end .rdp-day_button {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+  font-weight: 500;
+}
+
+/* Range middle */
+.rdp-day_range_middle .rdp-day_button {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+  border-radius: 0 !important;
+}
+
+/* Selected single day */
+.rdp-day_selected .rdp-day_button {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+  font-weight: 500;
+}
+
+
+/* Outside days */
+.rdp-day_outside .rdp-day_button {
+  color: #e5e7eb !important;
+  opacity: 0.5 !important;
+}
+
+/* Disabled days */
+.rdp-day_disabled .rdp-day_button {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Today styling */
+.rdp-day_today .rdp-day_button {
+  font-weight: 600;
+  color: #000000;
+}
+/* =====================================
+   RANGE MIDDLE – FLAT BACKGROUND ONLY
+   (NO BOXES, NO RADIUS)
+===================================== */
+
+/* Remove spacing between days so the range looks continuous */
+.rdp-week {
+  gap: 0 !important;
+}
+
+/* Apply background to the CELL, not the button */
+.rdp-day_range_middle {
+  background-color: #f3f4f6 !important;
+}
+
+/* Remove button box styling inside range middle */
+.rdp-day_range_middle .rdp-day_button {
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Prevent hover from re-adding box effect */
+.rdp-day_range_middle .rdp-day_button:hover {
+  background: transparent !important;
+}
+
+
+/* Custom Scrollbar Styles (Ported from NISAU) */
+.custom-scrollbar-light {
+  scrollbar-width: thin;
+  scrollbar-color: #C5C6D0 transparent;
+}
+.custom-scrollbar-light::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+@media (max-width: 768px) {
+  .custom-scrollbar-light::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+}
+.custom-scrollbar-light::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar-light::-webkit-scrollbar-thumb {
+  background-color: #C5C6D0;
+  border-radius: 10px;
+}
+.custom-scrollbar-light::-webkit-scrollbar-thumb:hover {
+  background-color: #A8A9B3;
+}
