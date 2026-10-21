@@ -333,7 +333,7 @@ export const productService = {
     }
 
     if (data.sku !== undefined) payload.sku = data.sku;
-    if (data.hsnNumber !== undefined) payload.hsn_code = data.hsnNumber;
+    if (data.hsnNumber !== undefined) payload.hsn_code = data.hsnNumber ? data.hsnNumber.trim() : null;
     if (data.barcode !== undefined) payload.barcode = data.barcode;
 
     // Inventory

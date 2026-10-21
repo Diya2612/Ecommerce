@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { productValidationSchema, type ProductSchemaData } from '../validation/productSchema';
@@ -114,45 +114,71 @@ export function useProductForm(optionsOrData?: UseProductFormOptions | ProductFo
   const tier2Category = watch('tier2Category');
   const tier3Category = watch('tier3Category');
 
-  // Auto-generate slug and URL from title
+  // Helper to normalize and generate slug from title
+  const generateSlug = (text: string) => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
+  // Track initial values on mount to detect changes in edit mode
+  const initialTitleRef = useRef<string | null>(null);
+  const initialDescRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (mode === 'create' && productTitle && !formState.touchedFields.productUrl) {
-      const slugValue = productTitle.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-+|-+$/g, '');
-
-      setValue('productUrl', slugValue, { shouldValidate: true });
-      setValue('slug', slugValue);
-      setValue('metaTitle', productTitle.slice(0, 60));
+    if (initialTitleRef.current === null && productTitle) {
+      initialTitleRef.current = productTitle;
     }
-  }, [productTitle, mode, setValue, formState.touchedFields.productUrl]);
+  }, [productTitle]);
 
-  // Sync URL to Slug
+  useEffect(() => {
+    if (initialDescRef.current === null && shortDescription) {
+      initialDescRef.current = shortDescription;
+    }
+  }, [shortDescription]);
+
+  // Auto-generate slug, productUrl, and metaTitle directly from product name
+  useEffect(() => {
+    if (productTitle) {
+      const slugValue = generateSlug(productTitle);
+      const isTitleEdited = initialTitleRef.current !== null && initialTitleRef.current !== productTitle;
+
+      if (mode === 'create' || isTitleEdited) {
+        setValue('productUrl', slugValue, { shouldValidate: true, shouldDirty: true });
+        setValue('slug', slugValue, { shouldDirty: true });
+        setValue('metaTitle', productTitle.slice(0, 60), { shouldDirty: true });
+      }
+    }
+  }, [productTitle, mode, setValue]);
+
+  // Sync manual edits of productUrl to slug
   useEffect(() => {
     if (productUrl) {
-      const slugValue = productUrl.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-+|-+$/g, '');
-
+      const slugValue = generateSlug(productUrl);
       if (slugValue !== productUrl) {
-        // Only update if normalization changed it, to avoid loops
-        setValue('slug', slugValue);
+        setValue('slug', slugValue, { shouldDirty: true });
       } else {
-        setValue('slug', productUrl);
+        setValue('slug', productUrl, { shouldDirty: true });
       }
     }
   }, [productUrl, setValue]);
 
-  // Auto-fill Meta Description
+  // Auto-fill Meta Description from shortDescription or productTitle
   useEffect(() => {
-    if (shortDescription && !formState.touchedFields.metaDescription) {
-      setValue('metaDescription', shortDescription.slice(0, 160));
+    const isDescEdited = initialDescRef.current !== null && initialDescRef.current !== shortDescription;
+    const isTitleEdited = initialTitleRef.current !== null && initialTitleRef.current !== productTitle;
+
+    if (mode === 'create' || isDescEdited || isTitleEdited) {
+      const desc = shortDescription || productTitle || '';
+      if (desc) {
+        setValue('metaDescription', desc.slice(0, 160), { shouldDirty: true });
+      }
     }
-  }, [shortDescription, formState.touchedFields.metaDescription, setValue]);
+  }, [shortDescription, productTitle, mode, setValue]);
 
   // Auto-generate SKU for new products
   useEffect(() => {

@@ -366,7 +366,7 @@ export default function ProductDetailPage() {
                 />
 
                 {/* 5. SEO & URL */}
-                <SeoSection readOnlyUrl={true} />
+                <SeoSection readOnlyUrl={false} />
               </div>
 
               {/* RIGHT COLUMN - Secondary Content */}

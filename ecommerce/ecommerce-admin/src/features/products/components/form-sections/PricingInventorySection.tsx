@@ -202,7 +202,7 @@ export function PricingInventorySection({ productId }: PricingInventorySectionPr
 
               <div>
                 <Label htmlFor="hsnNumber" className="text-sm font-medium text-slate-700 mb-2 block">
-                  HSN Number <span className="text-amber-600">*</span>
+                  HSN Number
                 </Label>
                 <Input
                   id="hsnNumber"

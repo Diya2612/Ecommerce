@@ -143,8 +143,12 @@ export const productValidationSchema = z.object({
     .regex(/^[A-Z0-9-]+$/, 'SKU must contain only uppercase letters, numbers, and hyphens'),
 
   hsnNumber: z.string()
-    .min(1, 'HSN number is required')
-    .regex(/^[0-9]{6,8}$/, 'HSN number must be 6-8 digits'),
+    .trim()
+    .optional()
+    .or(z.literal(''))
+    .refine((val) => !val || /^[0-9]{6,8}$/.test(val), {
+      message: 'HSN number must be 6-8 digits',
+    }),
 
   barcode: z.string()
     .max(50, 'Barcode must not exceed 50 characters')
