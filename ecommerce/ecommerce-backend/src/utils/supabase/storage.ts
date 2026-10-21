@@ -29,7 +29,7 @@ export interface ImageTransformOptions {
  * Retrieves the standard storage bucket name from configuration.
  */
 function getBucketName(): string {
-  const bucket = 'uploads'; // Supabase bucket name
+  const bucket = process.env.SUPABASE_BUCKET_NAME || 'Ecommerce Org';
   if (!bucket) {
     throw new HttpException(500, 'Storage bucket not configured');
   }

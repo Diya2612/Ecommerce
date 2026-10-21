@@ -29,6 +29,7 @@ import QueueRoute from './features/queue';
 import NotificationRoute from './features/notifications';
 import InvoiceRoute from './features/invoice';
 import AbandonedCartRoute from './features/abandoned-cart';
+import UploadRoute from './features/upload';
 
 /**
  * Catch-all handlers to prevent silent process crashes from unhandled async
@@ -104,6 +105,7 @@ async function bootstrap(): Promise<void> {
       new NotificationRoute(),
       new InvoiceRoute(),
       new AbandonedCartRoute(),
+      new UploadRoute(),
     ]);
 
     // --- Cron Jobs ---

@@ -1,11 +1,6 @@
 CREATE TYPE "public"."address_type_enum" AS ENUM('home', 'office', 'other');--> statement-breakpoint
-CREATE TYPE "public"."blog_status" AS ENUM('public', 'private', 'draft');--> statement-breakpoint
 CREATE TYPE "public"."cart_status" AS ENUM('active', 'converted', 'abandoned');--> statement-breakpoint
-CREATE TYPE "public"."collection_sort_order" AS ENUM('best-selling', 'price-asc', 'price-desc', 'manual', 'created-desc', 'created-asc');--> statement-breakpoint
-CREATE TYPE "public"."collection_status" AS ENUM('active', 'inactive', 'draft');--> statement-breakpoint
-CREATE TYPE "public"."collection_type" AS ENUM('manual', 'automated');--> statement-breakpoint
-CREATE TYPE "public"."condition_match_type" AS ENUM('all', 'any');--> statement-breakpoint
-CREATE TYPE "public"."customer_account_status" AS ENUM('active', 'inactive', 'banned');--> statement-breakpoint
+CREATE TYPE "public"."customer_account_status" AS ENUM('active', 'inactive');--> statement-breakpoint
 CREATE TYPE "public"."customer_segment" AS ENUM('new', 'regular', 'vip', 'at_risk');--> statement-breakpoint
 CREATE TYPE "public"."buy_x_trigger_type" AS ENUM('quantity', 'amount');--> statement-breakpoint
 CREATE TYPE "public"."discount_applies_to" AS ENUM('entire_order', 'specific_products', 'specific_collections');--> statement-breakpoint
@@ -22,8 +17,6 @@ CREATE TYPE "public"."adjustment_type" AS ENUM('increase', 'decrease', 'correcti
 CREATE TYPE "public"."approval_status" AS ENUM('pending', 'approved', 'rejected');--> statement-breakpoint
 CREATE TYPE "public"."inventory_condition" AS ENUM('sellable', 'damaged', 'quarantined', 'expired');--> statement-breakpoint
 CREATE TYPE "public"."inventory_status" AS ENUM('in_stock', 'low_stock', 'out_of_stock');--> statement-breakpoint
-CREATE TYPE "public"."entity_type" AS ENUM('product', 'blog', 'category', 'collection', 'user', 'brand', 'vendor', 'global');--> statement-breakpoint
-CREATE TYPE "public"."media_type" AS ENUM('image', 'video', 'document', 'file');--> statement-breakpoint
 CREATE TYPE "public"."delivery_status" AS ENUM('pending', 'sent', 'delivered', 'failed', 'bounced');--> statement-breakpoint
 CREATE TYPE "public"."notification_frequency" AS ENUM('immediate', 'never');--> statement-breakpoint
 CREATE TYPE "public"."notification_priority" AS ENUM('low', 'normal', 'high', 'urgent');--> statement-breakpoint
@@ -71,27 +64,6 @@ CREATE TABLE "user_addresses" (
 	"is_deleted" boolean DEFAULT false NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "invitation" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"first_name" varchar(100) NOT NULL,
-	"last_name" varchar(100) NOT NULL,
-	"email" varchar(255) NOT NULL,
-	"invite_token" varchar(64) NOT NULL,
-	"status" text DEFAULT 'pending' NOT NULL,
-	"assigned_role_id" uuid,
-	"invited_by" uuid NOT NULL,
-	"expires_at" timestamp NOT NULL,
-	"accepted_at" timestamp,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"created_by" uuid,
-	"updated_by" uuid,
-	"is_deleted" boolean DEFAULT false NOT NULL,
-	"deleted_by" uuid,
-	"deleted_at" timestamp,
-	CONSTRAINT "invitation_email_unique" UNIQUE("email")
-);
---> statement-breakpoint
 CREATE TABLE "admin_profiles" (
 	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
 	"user_id" uuid NOT NULL,
@@ -104,52 +76,6 @@ CREATE TABLE "admin_profiles" (
 	"is_deleted" boolean DEFAULT false NOT NULL,
 	CONSTRAINT "admin_profiles_user_id_unique" UNIQUE("user_id"),
 	CONSTRAINT "admin_profiles_employee_number_unique" UNIQUE("employee_number")
-);
---> statement-breakpoint
-CREATE TABLE "audit_logs" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" uuid,
-	"user_email" varchar(255),
-	"user_role" varchar(100),
-	"action" varchar(100) NOT NULL,
-	"resource_type" varchar(100) NOT NULL,
-	"resource_id" varchar(255),
-	"old_values" jsonb,
-	"new_values" jsonb,
-	"ip_address" varchar(45),
-	"user_agent" text,
-	"session_id" varchar(255),
-	"metadata" jsonb,
-	"reason" text,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "blogs" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"title" varchar(255) NOT NULL,
-	"quote" varchar(500),
-	"description" varchar(150),
-	"content" text,
-	"slug" varchar(255) NOT NULL,
-	"main_image_pc_url" text,
-	"main_image_mobile_url" text,
-	"notes" text,
-	"category" varchar(100),
-	"tags" jsonb DEFAULT '[]'::jsonb,
-	"author" varchar(255),
-	"meta_title" varchar(60),
-	"meta_description" varchar(160),
-	"status" "blog_status" DEFAULT 'draft' NOT NULL,
-	"published_at" timestamp,
-	"views_count" integer DEFAULT 0 NOT NULL,
-	"created_by" uuid,
-	"updated_by" uuid,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"is_deleted" boolean DEFAULT false NOT NULL,
-	"deleted_at" timestamp,
-	"deleted_by" uuid,
-	CONSTRAINT "blogs_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
 CREATE TABLE "cart_items" (
@@ -255,37 +181,6 @@ CREATE TABLE "chatbot_sessions" (
 	"deleted_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE "collection_products" (
-	"collection_id" uuid NOT NULL,
-	"product_id" uuid NOT NULL,
-	"position" integer NOT NULL,
-	CONSTRAINT "collection_products_collection_id_product_id_pk" PRIMARY KEY("collection_id","product_id")
-);
---> statement-breakpoint
-CREATE TABLE "collections" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"title" varchar(255) NOT NULL,
-	"slug" varchar(255) NOT NULL,
-	"description" text,
-	"type" "collection_type" DEFAULT 'manual' NOT NULL,
-	"status" "collection_status" DEFAULT 'draft' NOT NULL,
-	"sort_order" "collection_sort_order" DEFAULT 'manual' NOT NULL,
-	"condition_match_type" "condition_match_type" DEFAULT 'all',
-	"banner_image_url" text,
-	"mobile_banner_image_url" text,
-	"meta_title" varchar(255),
-	"meta_description" text,
-	"tags" jsonb DEFAULT '[]'::jsonb,
-	"published_at" timestamp,
-	"created_by" uuid,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_by" uuid,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"deleted_by" uuid,
-	"deleted_at" timestamp,
-	CONSTRAINT "collections_slug_unique" UNIQUE("slug")
-);
---> statement-breakpoint
 CREATE TABLE "customer_profiles" (
 	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
 	"user_id" uuid NOT NULL,
@@ -296,8 +191,6 @@ CREATE TABLE "customer_profiles" (
 	"whatsapp_opt_in" boolean DEFAULT false NOT NULL,
 	"push_notifications_opt_in" boolean DEFAULT true NOT NULL,
 	"account_status" "customer_account_status" DEFAULT 'active' NOT NULL,
-	"banned_reason" text,
-	"banned_until" timestamp,
 	"risk_profile" varchar(20) DEFAULT 'low',
 	"notes" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -564,23 +457,6 @@ CREATE TABLE "invoices" (
 	CONSTRAINT "invoices_invoice_number_unique" UNIQUE("invoice_number")
 );
 --> statement-breakpoint
-CREATE TABLE "entity_media" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"entity_type" "entity_type" NOT NULL,
-	"entity_id" uuid NOT NULL,
-	"upload_id" uuid NOT NULL,
-	"media_type" "media_type" NOT NULL,
-	"display_order" integer DEFAULT 0 NOT NULL,
-	"is_primary" boolean DEFAULT false NOT NULL,
-	"alt_text" varchar(255),
-	"caption" text,
-	"tags" text[] DEFAULT '{}',
-	"folder_path" varchar(255),
-	"metadata" jsonb,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE "notification_delivery_logs" (
 	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
 	"notification_id" uuid NOT NULL,
@@ -652,6 +528,15 @@ CREATE TABLE "notifications" (
 	"expires_at" timestamp with time zone,
 	"deleted_at" timestamp with time zone,
 	"metadata" jsonb DEFAULT '{}'::jsonb
+);
+--> statement-breakpoint
+CREATE TABLE "user_notification_settings" (
+	"user_id" uuid PRIMARY KEY NOT NULL,
+	"email_enabled" boolean DEFAULT true NOT NULL,
+	"in_app_enabled" boolean DEFAULT true NOT NULL,
+	"push_enabled" boolean DEFAULT true NOT NULL,
+	"sms_enabled" boolean DEFAULT false NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "order_items" (
@@ -1006,22 +891,6 @@ CREATE TABLE "tax_rules" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "tags" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"name" varchar(255) NOT NULL,
-	"type" varchar(50) DEFAULT 'product' NOT NULL,
-	"usage_count" integer DEFAULT 0 NOT NULL,
-	"status" boolean DEFAULT true NOT NULL,
-	"is_deleted" boolean DEFAULT false NOT NULL,
-	"created_by" uuid,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_by" uuid,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"deleted_by" uuid,
-	"deleted_at" timestamp,
-	CONSTRAINT "tags_name_unique" UNIQUE("name")
-);
---> statement-breakpoint
 CREATE TABLE "ticket_messages" (
 	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
 	"ticket_id" uuid NOT NULL,
@@ -1088,29 +957,6 @@ CREATE TABLE "tiers" (
 	"deleted_by" uuid,
 	"deleted_at" timestamp,
 	CONSTRAINT "tiers_code_unique" UNIQUE("code")
-);
---> statement-breakpoint
-CREATE TABLE "uploads" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"user_id" uuid NOT NULL,
-	"filename" varchar(255) NOT NULL,
-	"original_filename" varchar(255) NOT NULL,
-	"mime_type" varchar(100) NOT NULL,
-	"file_size" bigint NOT NULL,
-	"file_path" text NOT NULL,
-	"file_url" text NOT NULL,
-	"status" text DEFAULT 'pending' NOT NULL,
-	"error_message" text,
-	"file_hash" varchar(64),
-	"reference_count" bigint DEFAULT 1 NOT NULL,
-	"created_by" uuid,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_by" uuid,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"is_deleted" boolean DEFAULT false NOT NULL,
-	"deleted_by" uuid,
-	"deleted_at" timestamp,
-	CONSTRAINT "uploads_file_hash_unique" UNIQUE("file_hash")
 );
 --> statement-breakpoint
 CREATE TABLE "email_otps" (
@@ -1189,11 +1035,7 @@ CREATE TABLE "wishlists" (
 );
 --> statement-breakpoint
 ALTER TABLE "user_addresses" ADD CONSTRAINT "user_addresses_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "invitation" ADD CONSTRAINT "invitation_invited_by_users_id_fk" FOREIGN KEY ("invited_by") REFERENCES "public"."users"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "invitation" ADD CONSTRAINT "invitation_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "invitation" ADD CONSTRAINT "invitation_updated_by_users_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "admin_profiles" ADD CONSTRAINT "admin_profiles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "cart_items" ADD CONSTRAINT "cart_items_cart_id_carts_id_fk" FOREIGN KEY ("cart_id") REFERENCES "public"."carts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "cart_items" ADD CONSTRAINT "cart_items_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "cart_items" ADD CONSTRAINT "cart_items_variant_id_product_variants_id_fk" FOREIGN KEY ("variant_id") REFERENCES "public"."product_variants"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
@@ -1204,20 +1046,13 @@ ALTER TABLE "carts" ADD CONSTRAINT "carts_deleted_by_users_id_fk" FOREIGN KEY ("
 ALTER TABLE "chatbot_documents" ADD CONSTRAINT "chatbot_documents_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "chatbot_messages" ADD CONSTRAINT "chatbot_messages_session_id_chatbot_sessions_id_fk" FOREIGN KEY ("session_id") REFERENCES "public"."chatbot_sessions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "chatbot_sessions" ADD CONSTRAINT "chatbot_sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "collection_products" ADD CONSTRAINT "collection_products_collection_id_collections_id_fk" FOREIGN KEY ("collection_id") REFERENCES "public"."collections"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "collection_products" ADD CONSTRAINT "collection_products_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "collections" ADD CONSTRAINT "collections_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "collections" ADD CONSTRAINT "collections_updated_by_users_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "collections" ADD CONSTRAINT "collections_deleted_by_users_id_fk" FOREIGN KEY ("deleted_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "customer_profiles" ADD CONSTRAINT "customer_profiles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_buy_x_collections" ADD CONSTRAINT "discount_buy_x_collections_discount_id_discounts_id_fk" FOREIGN KEY ("discount_id") REFERENCES "public"."discounts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "discount_buy_x_collections" ADD CONSTRAINT "discount_buy_x_collections_collection_id_collections_id_fk" FOREIGN KEY ("collection_id") REFERENCES "public"."collections"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_buy_x_products" ADD CONSTRAINT "discount_buy_x_products_discount_id_discounts_id_fk" FOREIGN KEY ("discount_id") REFERENCES "public"."discounts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_buy_x_products" ADD CONSTRAINT "discount_buy_x_products_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_customers" ADD CONSTRAINT "discount_customers_discount_id_discounts_id_fk" FOREIGN KEY ("discount_id") REFERENCES "public"."discounts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_customers" ADD CONSTRAINT "discount_customers_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_get_y_collections" ADD CONSTRAINT "discount_get_y_collections_discount_id_discounts_id_fk" FOREIGN KEY ("discount_id") REFERENCES "public"."discounts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "discount_get_y_collections" ADD CONSTRAINT "discount_get_y_collections_collection_id_collections_id_fk" FOREIGN KEY ("collection_id") REFERENCES "public"."collections"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_get_y_products" ADD CONSTRAINT "discount_get_y_products_discount_id_discounts_id_fk" FOREIGN KEY ("discount_id") REFERENCES "public"."discounts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_get_y_products" ADD CONSTRAINT "discount_get_y_products_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_regions" ADD CONSTRAINT "discount_regions_discount_id_discounts_id_fk" FOREIGN KEY ("discount_id") REFERENCES "public"."discounts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -1225,7 +1060,6 @@ ALTER TABLE "discount_shipping_methods" ADD CONSTRAINT "discount_shipping_method
 ALTER TABLE "discount_shipping_zones" ADD CONSTRAINT "discount_shipping_zones_discount_id_discounts_id_fk" FOREIGN KEY ("discount_id") REFERENCES "public"."discounts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_codes" ADD CONSTRAINT "discount_codes_discount_id_discounts_id_fk" FOREIGN KEY ("discount_id") REFERENCES "public"."discounts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_collections" ADD CONSTRAINT "discount_collections_discount_id_discounts_id_fk" FOREIGN KEY ("discount_id") REFERENCES "public"."discounts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "discount_collections" ADD CONSTRAINT "discount_collections_collection_id_collections_id_fk" FOREIGN KEY ("collection_id") REFERENCES "public"."collections"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_products" ADD CONSTRAINT "discount_products_discount_id_discounts_id_fk" FOREIGN KEY ("discount_id") REFERENCES "public"."discounts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_products" ADD CONSTRAINT "discount_products_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_usage" ADD CONSTRAINT "discount_usage_discount_id_discounts_id_fk" FOREIGN KEY ("discount_id") REFERENCES "public"."discounts"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
@@ -1246,10 +1080,10 @@ ALTER TABLE "inventory" ADD CONSTRAINT "inventory_deleted_by_users_id_fk" FOREIG
 ALTER TABLE "invoice_line_items" ADD CONSTRAINT "invoice_line_items_invoice_version_id_invoice_versions_id_fk" FOREIGN KEY ("invoice_version_id") REFERENCES "public"."invoice_versions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invoice_versions" ADD CONSTRAINT "invoice_versions_invoice_id_invoices_id_fk" FOREIGN KEY ("invoice_id") REFERENCES "public"."invoices"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invoices" ADD CONSTRAINT "invoices_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "entity_media" ADD CONSTRAINT "entity_media_upload_id_uploads_id_fk" FOREIGN KEY ("upload_id") REFERENCES "public"."uploads"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "notification_delivery_logs" ADD CONSTRAINT "notification_delivery_logs_notification_id_notifications_id_fk" FOREIGN KEY ("notification_id") REFERENCES "public"."notifications"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "notification_preferences" ADD CONSTRAINT "notification_preferences_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "notifications" ADD CONSTRAINT "notifications_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_notification_settings" ADD CONSTRAINT "user_notification_settings_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_variant_id_product_variants_id_fk" FOREIGN KEY ("variant_id") REFERENCES "public"."product_variants"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
@@ -1282,9 +1116,6 @@ ALTER TABLE "currencies" ADD CONSTRAINT "currencies_created_by_users_id_fk" FORE
 ALTER TABLE "currencies" ADD CONSTRAINT "currencies_updated_by_users_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tax_rules" ADD CONSTRAINT "tax_rules_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tax_rules" ADD CONSTRAINT "tax_rules_updated_by_users_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "tags" ADD CONSTRAINT "tags_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "tags" ADD CONSTRAINT "tags_updated_by_users_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "tags" ADD CONSTRAINT "tags_deleted_by_users_id_fk" FOREIGN KEY ("deleted_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "ticket_messages" ADD CONSTRAINT "ticket_messages_ticket_id_tickets_id_fk" FOREIGN KEY ("ticket_id") REFERENCES "public"."tickets"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "ticket_messages" ADD CONSTRAINT "ticket_messages_sender_id_users_id_fk" FOREIGN KEY ("sender_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "ticket_messages" ADD CONSTRAINT "ticket_messages_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
@@ -1300,7 +1131,6 @@ ALTER TABLE "tiers" ADD CONSTRAINT "tiers_created_by_users_id_fk" FOREIGN KEY ("
 ALTER TABLE "tiers" ADD CONSTRAINT "tiers_updated_by_users_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tiers" ADD CONSTRAINT "tiers_deleted_by_users_id_fk" FOREIGN KEY ("deleted_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tiers" ADD CONSTRAINT "tiers_parent_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."tiers"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "uploads" ADD CONSTRAINT "uploads_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "wishlist_items" ADD CONSTRAINT "wishlist_items_wishlist_id_wishlists_id_fk" FOREIGN KEY ("wishlist_id") REFERENCES "public"."wishlists"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "wishlist_items" ADD CONSTRAINT "wishlist_items_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "wishlist_items" ADD CONSTRAINT "wishlist_items_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
@@ -1315,12 +1145,6 @@ CREATE UNIQUE INDEX "user_addresses_unique_default_billing_idx" ON "user_address
 CREATE INDEX "admin_profiles_department_idx" ON "admin_profiles" USING btree ("department","is_active");--> statement-breakpoint
 CREATE INDEX "admin_profiles_is_active_idx" ON "admin_profiles" USING btree ("is_active","is_deleted");--> statement-breakpoint
 CREATE INDEX "admin_profiles_employee_number_idx" ON "admin_profiles" USING btree ("employee_number");--> statement-breakpoint
-CREATE INDEX "audit_logs_user_id_idx" ON "audit_logs" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "audit_logs_resource_idx" ON "audit_logs" USING btree ("resource_type","resource_id");--> statement-breakpoint
-CREATE INDEX "audit_logs_action_idx" ON "audit_logs" USING btree ("action");--> statement-breakpoint
-CREATE INDEX "audit_logs_created_at_idx" ON "audit_logs" USING btree ("created_at" DESC NULLS LAST);--> statement-breakpoint
-CREATE INDEX "blogs_status_idx" ON "blogs" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "blogs_category_idx" ON "blogs" USING btree ("category");--> statement-breakpoint
 CREATE INDEX "cart_items_cart_id_idx" ON "cart_items" USING btree ("cart_id");--> statement-breakpoint
 CREATE INDEX "cart_items_product_id_idx" ON "cart_items" USING btree ("product_id");--> statement-breakpoint
 CREATE INDEX "carts_user_id_idx" ON "carts" USING btree ("user_id");--> statement-breakpoint
@@ -1332,10 +1156,6 @@ CREATE INDEX "chatbot_messages_session_id_is_deleted_idx" ON "chatbot_messages" 
 CREATE INDEX "chatbot_messages_created_at_idx" ON "chatbot_messages" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "chatbot_sessions_user_id_is_deleted_idx" ON "chatbot_sessions" USING btree ("user_id","is_deleted");--> statement-breakpoint
 CREATE INDEX "chatbot_sessions_created_at_idx" ON "chatbot_sessions" USING btree ("created_at");--> statement-breakpoint
-CREATE INDEX "collection_products_product_id_idx" ON "collection_products" USING btree ("product_id");--> statement-breakpoint
-CREATE INDEX "collections_type_idx" ON "collections" USING btree ("type");--> statement-breakpoint
-CREATE INDEX "collections_status_idx" ON "collections" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "customer_profiles_status_idx" ON "customer_profiles" USING btree ("account_status");--> statement-breakpoint
 CREATE INDEX "customer_profiles_risk_idx" ON "customer_profiles" USING btree ("risk_profile");--> statement-breakpoint
 CREATE INDEX "discount_buy_x_collections_collection_id_idx" ON "discount_buy_x_collections" USING btree ("collection_id");--> statement-breakpoint
 CREATE INDEX "discount_buy_x_products_product_id_idx" ON "discount_buy_x_products" USING btree ("product_id");--> statement-breakpoint
@@ -1372,13 +1192,6 @@ CREATE INDEX "invoice_versions_version_number_idx" ON "invoice_versions" USING b
 CREATE INDEX "invoices_order_id_idx" ON "invoices" USING btree ("order_id");--> statement-breakpoint
 CREATE INDEX "invoices_invoice_number_idx" ON "invoices" USING btree ("invoice_number");--> statement-breakpoint
 CREATE INDEX "invoices_status_idx" ON "invoices" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "entity_media_entity_idx" ON "entity_media" USING btree ("entity_type","entity_id");--> statement-breakpoint
-CREATE INDEX "entity_media_display_order_idx" ON "entity_media" USING btree ("entity_type","entity_id","display_order");--> statement-breakpoint
-CREATE INDEX "entity_media_upload_id_idx" ON "entity_media" USING btree ("upload_id");--> statement-breakpoint
-CREATE INDEX "entity_media_primary_idx" ON "entity_media" USING btree ("entity_type","entity_id","is_primary");--> statement-breakpoint
-CREATE INDEX "entity_media_type_idx" ON "entity_media" USING btree ("entity_type","entity_id","media_type");--> statement-breakpoint
-CREATE INDEX "entity_media_tags_idx" ON "entity_media" USING btree ("tags");--> statement-breakpoint
-CREATE INDEX "entity_media_folder_idx" ON "entity_media" USING btree ("folder_path");--> statement-breakpoint
 CREATE INDEX "idx_notifications_user_read" ON "notifications" USING btree ("user_id","is_read") WHERE "notifications"."deleted_at" is null;--> statement-breakpoint
 CREATE INDEX "order_items_order_id_idx" ON "order_items" USING btree ("order_id");--> statement-breakpoint
 CREATE INDEX "order_items_product_id_idx" ON "order_items" USING btree ("product_id");--> statement-breakpoint
@@ -1437,8 +1250,6 @@ CREATE INDEX "tax_rules_country_active_idx" ON "tax_rules" USING btree ("country
 CREATE INDEX "tax_rules_region_idx" ON "tax_rules" USING btree ("country_code","region_code");--> statement-breakpoint
 CREATE INDEX "tax_rules_tax_code_idx" ON "tax_rules" USING btree ("tax_code");--> statement-breakpoint
 CREATE INDEX "tax_rules_effective_idx" ON "tax_rules" USING btree ("effective_from","effective_until");--> statement-breakpoint
-CREATE INDEX "tags_type_idx" ON "tags" USING btree ("type");--> statement-breakpoint
-CREATE INDEX "tags_active_type_idx" ON "tags" USING btree ("type","usage_count") WHERE "tags"."is_deleted" = false and "tags"."status" = true;--> statement-breakpoint
 CREATE INDEX "ticket_messages_ticket_created_idx" ON "ticket_messages" USING btree ("ticket_id","created_at");--> statement-breakpoint
 CREATE INDEX "ticket_messages_sender_type_idx" ON "ticket_messages" USING btree ("sender_type");--> statement-breakpoint
 CREATE INDEX "tickets_ticket_number_idx" ON "tickets" USING btree ("ticket_number");--> statement-breakpoint

@@ -1,7 +1,9 @@
 const { Pool } = require('pg');
 
+require('dotenv').config();
+
 const pool = new Pool({
-  connectionString: 'postgresql://postgres:Harshal%401231@db.dignrkmjoogibuarnxvs.supabase.co:5432/postgres'
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:' + encodeURIComponent('A#Wg)VW,d7H44fA') + '@db.olrbnzxjieogvqauhfwe.supabase.co:5432/postgres'
 });
 
 async function grantPermissions() {
