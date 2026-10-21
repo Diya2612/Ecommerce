@@ -1,0 +1,13 @@
+# Modern browser targets for reduced bundle size
+# This eliminates legacy JavaScript polyfills (~11 KiB savings)
+
+# Production: Modern browsers only (last 2 versions)
+last 2 Chrome versions
+last 2 Firefox versions
+last 2 Safari versions
+last 2 Edge versions
+
+# Exclude IE and other legacy browsers
+not IE 11
+not op_mini all
+not dead

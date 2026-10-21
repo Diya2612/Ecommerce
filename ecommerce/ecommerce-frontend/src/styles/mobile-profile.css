@@ -1,0 +1,392 @@
+/* Mobile Profile CSS Utilities
+ * Performance-optimized styles for mobile profile pages
+ * ============================================ */
+
+/* ============================================
+ * 1. Safe Area & Viewport Utilities
+ * ============================================ */
+
+/* Safe area padding for notched devices (iOS) */
+.safe-area-top {
+    padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-x {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Account for bottom navigation bar */
+.pb-nav {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ============================================
+ * 2. Touch Interaction Optimizations
+ * ============================================ */
+
+/* Prevent text selection during gestures */
+.touch-none-text {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* Smooth momentum scrolling (iOS) */
+.scroll-smooth-ios {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+/* Horizontal scroll with hidden scrollbar */
+.scroll-x-hide {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.scroll-x-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Snap scroll for horizontal carousels */
+.snap-x-mandatory {
+    scroll-snap-type: x mandatory;
+}
+
+.snap-start {
+    scroll-snap-align: start;
+}
+
+.snap-center {
+    scroll-snap-align: center;
+}
+
+/* Prevent overscroll bounce on whole page */
+.overscroll-none {
+    overscroll-behavior: none;
+}
+
+/* ============================================
+ * 3. Animation Performance Classes
+ * ============================================ */
+
+/* GPU acceleration for smooth transforms */
+.will-change-transform {
+    will-change: transform;
+}
+
+.will-change-opacity {
+    will-change: opacity;
+}
+
+.will-change-scroll {
+    will-change: scroll-position;
+}
+
+/* Force hardware acceleration */
+.gpu-accelerate {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .motion-reduce {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .motion-reduce * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ============================================
+ * 4. Skeleton Loading Animations
+ * ============================================ */
+
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton-shimmer {
+    background: linear-gradient(90deg,
+            rgb(243 244 246) 0%,
+            rgb(229 231 235) 50%,
+            rgb(243 244 246) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.dark .skeleton-shimmer {
+    background: linear-gradient(90deg,
+            rgb(30 41 59) 0%,
+            rgb(51 65 85) 50%,
+            rgb(30 41 59) 100%);
+    background-size: 200% 100%;
+}
+
+/* Pulse animation alternative */
+@keyframes skeleton-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.skeleton-pulse {
+    animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ============================================
+ * 5. Pull-to-Refresh Styles
+ * ============================================ */
+
+.pull-indicator {
+    transform-origin: center;
+    transition: transform 0.2s ease-out;
+}
+
+.pull-indicator.refreshing {
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+ * 6. Swipe Action Styles
+ * ============================================ */
+
+/* Swipe reveal container */
+.swipe-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.swipe-content {
+    position: relative;
+    z-index: 1;
+    background: inherit;
+}
+
+.swipe-actions {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    z-index: 0;
+}
+
+.swipe-actions-left {
+    right: 0;
+}
+
+.swipe-actions-right {
+    left: 0;
+}
+
+/* ============================================
+ * 7. Bottom Sheet Styles
+ * ============================================ */
+
+/* Sheet backdrop */
+.sheet-backdrop {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* Sheet handle */
+.sheet-handle {
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgb(203 213 225);
+    margin: 8px auto 4px;
+}
+
+.dark .sheet-handle {
+    background: rgb(100 116 139);
+}
+
+/* ============================================
+ * 8. Touch Ripple Effect
+ * ============================================ */
+
+.ripple-container {
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes ripple-expand {
+    0% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.3;
+    pointer-events: none;
+    animation: ripple-expand 0.6s ease-out forwards;
+}
+
+/* ============================================
+ * 9. Image Loading Optimizations
+ * ============================================ */
+
+/* Lazy load fade in */
+.img-lazy {
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
+}
+
+.img-lazy.loaded {
+    opacity: 1;
+}
+
+/* Blur-up effect for progressive images */
+.img-blur-up {
+    filter: blur(20px);
+    transition: filter 0.3s ease-out;
+}
+
+.img-blur-up.loaded {
+    filter: blur(0);
+}
+
+/* Aspect ratio containers */
+.aspect-square {
+    aspect-ratio: 1 / 1;
+}
+
+.aspect-product {
+    aspect-ratio: 3 / 4;
+}
+
+/* ============================================
+ * 10. Performance Optimizations
+ * ============================================ */
+
+/* Content visibility for off-screen elements */
+.content-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
+}
+
+/* Contain layout and paint */
+.contain-strict {
+    contain: strict;
+}
+
+.contain-content {
+    contain: content;
+}
+
+.contain-layout-paint {
+    contain: layout paint;
+}
+
+/* ============================================
+ * 11. Responsive Hide/Show Utilities
+ * ============================================ */
+
+/* Mobile only */
+@media (min-width: 1024px) {
+    .mobile-only {
+        display: none !important;
+    }
+}
+
+/* Desktop only */
+@media (max-width: 1023px) {
+    .desktop-only {
+        display: none !important;
+    }
+}
+
+/* ============================================
+ * 12. Typography Optimizations
+ * ============================================ */
+
+/* Prevent text rendering issues */
+.text-render-optimize {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Truncate with ellipsis */
+.truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ============================================
+ * 13. Focus & Accessibility
+ * ============================================ */
+
+/* Custom focus ring for touch devices */
+@media (pointer: coarse) {
+    .touch-focus:focus {
+        outline: none;
+    }
+
+    .touch-focus:focus-visible {
+        outline: 2px solid rgb(0 196 204);
+        outline-offset: 2px;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .high-contrast-border {
+        border-width: 2px;
+    }
+}
