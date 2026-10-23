@@ -74,15 +74,32 @@ export const WORKER_CONCURRENCY = {
  *
  * BullMQ will internally reuse connections when using the same config object
  */
-const isCloudMode = config.REDIS_MODE === 'cloud';
-const host = isCloudMode ? config.REDIS_CLOUD_HOST : config.REDIS_LOCAL_HOST;
-const port = isCloudMode ? config.REDIS_CLOUD_PORT : config.REDIS_LOCAL_PORT;
-const password = isCloudMode ? config.REDIS_CLOUD_PASSWORD : config.REDIS_LOCAL_PASSWORD;
+let upstashHost = '';
+if (config.UPSTASH_REDIS_REST_URL) {
+  try {
+    upstashHost = new URL(config.UPSTASH_REDIS_REST_URL).hostname;
+  } catch {
+    upstashHost = config.UPSTASH_REDIS_REST_URL.replace(/^https?:\/\//, '').split('/')[0];
+  }
+}
+
+const isCloudMode = config.REDIS_MODE === 'cloud' || Boolean(upstashHost);
+const host = isCloudMode
+  ? (config.REDIS_CLOUD_HOST || upstashHost)
+  : config.REDIS_LOCAL_HOST;
+const port = isCloudMode
+  ? (config.REDIS_CLOUD_PORT || 6379)
+  : config.REDIS_LOCAL_PORT;
+const password = isCloudMode
+  ? (config.REDIS_CLOUD_PASSWORD || config.UPSTASH_REDIS_REST_TOKEN)
+  : config.REDIS_LOCAL_PASSWORD;
+const isTls = isCloudMode || (Boolean(host) && (host.includes('upstash.io') || host.includes('redislabs.com')));
 
 export const QUEUE_REDIS_CONFIG = {
   host,
   port,
   password: password || undefined,
+  ...(isTls ? { tls: {} } : {}),
   maxRetriesPerRequest: null, // Required for BullMQ
   enableReadyCheck: false,
   enableOfflineQueue: false,

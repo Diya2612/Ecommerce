@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { Routes } from '../../interfaces/routes.interface';
+import type { Route as Routes } from '../../interfaces';
 import { uploadSingleFileMiddleware, requireAuth } from '../../middlewares';
 import { uploadToStorage } from '../../utils/supabase/storage';
 import { ResponseFormatter, HttpException } from '../../utils';
@@ -17,7 +17,7 @@ class UploadRoute implements Routes {
       this.path,
       requireAuth,
       uploadSingleFileMiddleware,
-      async (req: Request, res: Response, next: NextFunction) => {
+      async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
           const file = req.file;
           if (!file) {
@@ -35,7 +35,7 @@ class UploadRoute implements Routes {
             { folder },
           );
 
-          return ResponseFormatter.created(
+          ResponseFormatter.created(
             res,
             {
               id: result.key,

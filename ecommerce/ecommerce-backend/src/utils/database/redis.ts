@@ -2,14 +2,31 @@ import { createClient } from 'redis';
 import { logger } from '../logging/logger';
 import { config } from '../config/validate-env';
 
-// Determine connection parameters based on REDIS_MODE
-const isCloudMode = config.REDIS_MODE === 'cloud';
-const host = isCloudMode ? config.REDIS_CLOUD_HOST : config.REDIS_LOCAL_HOST;
-const port = isCloudMode ? config.REDIS_CLOUD_PORT : config.REDIS_LOCAL_PORT;
-const password = isCloudMode ? config.REDIS_CLOUD_PASSWORD : config.REDIS_LOCAL_PASSWORD;
+// Determine connection parameters based on REDIS_MODE and Upstash env
+let upstashHost = '';
+if (config.UPSTASH_REDIS_REST_URL) {
+  try {
+    upstashHost = new URL(config.UPSTASH_REDIS_REST_URL).hostname;
+  } catch {
+    upstashHost = config.UPSTASH_REDIS_REST_URL.replace(/^https?:\/\//, '').split('/')[0];
+  }
+}
 
-// Redis configuration from environment variables
-const redisUrl = config.REDIS_URL || `redis://${host}:${port}`;
+const isCloudMode = config.REDIS_MODE === 'cloud' || Boolean(upstashHost);
+const host = isCloudMode
+  ? (config.REDIS_CLOUD_HOST || upstashHost)
+  : config.REDIS_LOCAL_HOST;
+const port = isCloudMode
+  ? (config.REDIS_CLOUD_PORT || 6379)
+  : config.REDIS_LOCAL_PORT;
+const password = isCloudMode
+  ? (config.REDIS_CLOUD_PASSWORD || config.UPSTASH_REDIS_REST_TOKEN)
+  : config.REDIS_LOCAL_PASSWORD;
+
+// Redis configuration from environment variables (TLS required for Upstash / Cloud)
+const isTls = isCloudMode || (Boolean(host) && (host.includes('upstash.io') || host.includes('redislabs.com')));
+const protocol = isTls ? 'rediss' : 'redis';
+const redisUrl = config.REDIS_URL || `${protocol}://${host}:${port}`;
 
 // Create Redis client instance with URL format and bounded reconnect attempts
 export const redisClient = createClient({
@@ -22,7 +39,7 @@ export const redisClient = createClient({
       }
       return 500;
     },
-    connectTimeout: 3000,
+    connectTimeout: 5000,
   },
 });
 
@@ -59,10 +76,7 @@ export const isRedisReady = (): boolean => isRedisConnected && redisClient.isRea
 // Test Redis connectivity
 export const testRedisConnection = async (): Promise<boolean> => {
   try {
-    const isCloudMode = config.REDIS_MODE === 'cloud';
-    const host = isCloudMode ? config.REDIS_CLOUD_HOST : config.REDIS_LOCAL_HOST;
-    const port = isCloudMode ? config.REDIS_CLOUD_PORT : config.REDIS_LOCAL_PORT;
-    logger.info(`🔄 Testing Redis connection to ${host}:${port}...`);
+    logger.info(`🔄 Testing Redis connection to ${host}:${port} (${protocol})...`);
 
     if (!redisClient.isReady) {
       await redisClient.connect();

@@ -40,9 +40,11 @@ export const validateEnv = () => {
         REDIS_LOCAL_PORT: num({ default: 6379 }),
         REDIS_LOCAL_PASSWORD: str({ default: '' }),
         REDIS_CLOUD_HOST: str({ default: '' }),
-        REDIS_CLOUD_PORT: num({ default: 18176 }),
+        REDIS_CLOUD_PORT: num({ default: 6379 }),
         REDIS_CLOUD_PASSWORD: str({ default: '' }),
         REDIS_URL: str({ default: '' }),
+        UPSTASH_REDIS_REST_URL: str({ default: '' }),
+        UPSTASH_REDIS_REST_TOKEN: str({ default: '' }),
 
         // Queue configuration
         QUEUE_WORKERS_ENABLED: str({ default: 'true' }),
