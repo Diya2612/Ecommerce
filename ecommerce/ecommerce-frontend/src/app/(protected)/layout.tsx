@@ -1,30 +1,19 @@
-import { Header } from "@/components/header";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { HideOnMobileProfile } from "@/components/layout/client/HideOnMobileProfile";
+import { EcommerceHeader } from "@/components/ecommerce/EcommerceHeader";
+import { EcommerceFooter } from "@/components/ecommerce/EcommerceFooter";
 
-/**
- * Protected Routes Layout
- * 
- * This layout includes the Header and MainLayout for protected routes.
- * Auth check is performed by the middleware.
- * 
- * Note: Header is hidden on mobile for profile pages since they have
- * their own mobile navigation (MobileProfileHeader + MobileProfileNav).
- */
 export default function ProtectedRoutesLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
     return (
-        <>
-            <HideOnMobileProfile>
-                <Header />
-            </HideOnMobileProfile>
-            <MainLayout>
+        <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
+            <EcommerceHeader />
+            <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {children}
-            </MainLayout>
-        </>
+            </main>
+            <EcommerceFooter />
+        </div>
     );
 }
 

@@ -20,7 +20,7 @@ export function PhoneLoginForm() {
     const { signInWithPhone, verifyPhoneOtp } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const redirectTo = searchParams.get('redirect') || '/profile';
+    const redirectTo = searchParams.get('redirect') || '/';
     const otpInputRef = useRef<HTMLInputElement>(null);
 
     // Format phone number with country code

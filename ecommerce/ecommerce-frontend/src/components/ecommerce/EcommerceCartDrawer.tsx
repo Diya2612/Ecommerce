@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   X,
   ShoppingBag,
@@ -11,6 +12,8 @@ import {
   ArrowRight,
   ShieldCheck,
   CheckCircle,
+  Loader2,
+  Tag,
 } from 'lucide-react';
 import { Product } from './EcommerceData';
 
@@ -18,6 +21,7 @@ export interface CartItem {
   product: Product;
   quantity: number;
   selectedColor?: string;
+  backendId?: string;
 }
 
 interface EcommerceCartDrawerProps {
@@ -37,6 +41,9 @@ export const EcommerceCartDrawer: React.FC<EcommerceCartDrawerProps> = ({
 }) => {
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
+  const [promoError, setPromoError] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoLabel, setPromoLabel] = useState('');
 
   if (!isOpen) return null;
 
@@ -54,10 +61,52 @@ export const EcommerceCartDrawer: React.FC<EcommerceCartDrawerProps> = ({
     Math.round((subtotal / freeShippingThreshold) * 100)
   );
 
-  const handleApplyPromo = (e: React.FormEvent) => {
+  const handleApplyPromo = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (promoCode.trim().toUpperCase() === 'NEXUS3D') {
-      setPromoApplied(true);
+    if (!promoCode.trim()) return;
+    setPromoError('');
+    setPromoLoading(true);
+
+    try {
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
+      const sessionId = typeof window !== 'undefined'
+        ? (localStorage.getItem('cart_session_id') ?? '')
+        : '';
+      const res = await fetch(`${API_BASE}/cart/discount`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-session-id': sessionId },
+        body: JSON.stringify({ code: promoCode.trim().toUpperCase() }),
+        signal: AbortSignal.timeout(5000),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const discount = json?.data?.discount ?? json?.discount;
+        if (discount?.type && discount?.value) {
+          setPromoApplied(true);
+          setPromoLabel(`${discount.type === 'percentage' ? discount.value + '%' : '₹' + discount.value} off`);
+        } else {
+          setPromoApplied(true);
+          setPromoLabel('10% off');
+        }
+      } else {
+        // Fallback: accept hardcoded demo code offline
+        if (promoCode.trim().toUpperCase() === 'NEXUS3D') {
+          setPromoApplied(true);
+          setPromoLabel('10% off');
+        } else {
+          setPromoError('Invalid or expired promo code.');
+        }
+      }
+    } catch {
+      // Offline fallback
+      if (promoCode.trim().toUpperCase() === 'NEXUS3D') {
+        setPromoApplied(true);
+        setPromoLabel('10% off');
+      } else {
+        setPromoError('Could not validate code. Try NEXUS3D.');
+      }
+    } finally {
+      setPromoLoading(false);
     }
   };
 
@@ -144,14 +193,19 @@ export const EcommerceCartDrawer: React.FC<EcommerceCartDrawerProps> = ({
                 key={item.product.id}
                 className="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 border border-slate-200"
               >
-                <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white shrink-0 border border-slate-200">
-                  <Image
-                    src={item.product.images[0]}
-                    alt={item.product.name}
-                    fill
-                    sizes="64px"
-                    className="object-contain p-1"
-                  />
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white shrink-0 border border-slate-200 flex items-center justify-center">
+                  {item.product.images?.[0] ? (
+                    <Image
+                      src={item.product.images[0]}
+                      alt={item.product.name}
+                      fill
+                      sizes="64px"
+                      className="object-contain p-1"
+                      unoptimized={item.product.images[0].startsWith('http')}
+                    />
+                  ) : (
+                    <ShoppingBag className="w-8 h-8 text-slate-300" />
+                  )}
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -210,21 +264,40 @@ export const EcommerceCartDrawer: React.FC<EcommerceCartDrawerProps> = ({
         {items.length > 0 && (
           <div className="p-4 sm:p-6 border-t border-slate-200 bg-slate-50/70 space-y-4">
             {/* Promo Code Input */}
-            <form onSubmit={handleApplyPromo} className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Promo code (try NEXUS3D)"
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-xl text-xs bg-white text-slate-900 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 uppercase"
-              />
-              <button
-                type="submit"
-                className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-colors"
-              >
-                Apply
-              </button>
-            </form>
+            {!promoApplied ? (
+              <form onSubmit={handleApplyPromo} className="space-y-1">
+                <div className="flex gap-2">
+                  <div className="flex-1 relative">
+                    <Tag className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder="Promo code (try NEXUS3D)"
+                      value={promoCode}
+                      onChange={(e) => { setPromoCode(e.target.value); setPromoError(''); }}
+                      className="w-full pl-8 pr-3 py-2 rounded-xl text-xs bg-white text-slate-900 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 uppercase placeholder:normal-case"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={promoLoading}
+                    className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-colors flex items-center gap-1 disabled:opacity-60"
+                  >
+                    {promoLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Apply'}
+                  </button>
+                </div>
+                {promoError && (
+                  <p className="text-[11px] text-rose-500 font-medium px-1">{promoError}</p>
+                )}
+              </form>
+            ) : (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200">
+                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="text-xs font-bold text-emerald-700 flex-1">Promo applied — {promoLabel}!</span>
+                <button onClick={() => { setPromoApplied(false); setPromoCode(''); setPromoLabel(''); }} className="text-[10px] text-slate-400 hover:text-rose-500">
+                  Remove
+                </button>
+              </div>
+            )}
 
             {/* Calculations */}
             <div className="space-y-1.5 text-xs text-slate-500">
@@ -255,13 +328,13 @@ export const EcommerceCartDrawer: React.FC<EcommerceCartDrawerProps> = ({
             </div>
 
             {/* Checkout CTA */}
-            <button
-              onClick={() => alert('Proceeding to Secure Checkout!')}
+            <Link
+              href="/checkout"
               className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm shadow-xl shadow-purple-900/10 flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
             >
               <span>Proceed to Checkout</span>
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </Link>
 
             <div className="flex items-center justify-center gap-2 text-[11px] text-slate-400">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />

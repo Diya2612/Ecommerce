@@ -17,7 +17,7 @@ export function LoginForm() {
     const { signIn, isLoading } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const redirectTo = searchParams.get('redirect') || '/profile';
+    const redirectTo = searchParams.get('redirect') || '/';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

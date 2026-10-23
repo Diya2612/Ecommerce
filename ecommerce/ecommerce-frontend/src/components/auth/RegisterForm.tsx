@@ -71,8 +71,8 @@ export function RegisterForm() {
             // Redirect to confirmation page with email
             router.push(`/confirm-email?email=${encodeURIComponent(email)}`);
         } else {
-            // Auto-login successful, redirect to profile
-            router.push('/profile');
+            // Auto-login successful, redirect to storefront home
+            router.push('/');
             router.refresh();
         }
     };

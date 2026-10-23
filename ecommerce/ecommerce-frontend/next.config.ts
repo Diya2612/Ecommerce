@@ -88,6 +88,12 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
       {
+        // Supabase storage for product images from backend API
+        protocol: "https",
+        hostname: "olrbnzxjieogvqauhfwe.supabase.co",
+        pathname: "/**",
+      },
+      {
         protocol: "https",
         hostname: "api.dicebear.com",
         pathname: "/**",

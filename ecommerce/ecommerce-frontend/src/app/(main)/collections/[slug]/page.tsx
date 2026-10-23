@@ -29,11 +29,11 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
         const product = await getProductBySlug(slug);
 
         const description = product.subtitle
-            ? `${product.subtitle} - ${product.name} from Anant Enterprises.`
-            : `Buy ${product.name} - Premium water purification solution.`;
+            ? `${product.subtitle} - ${product.name} from Ecommerce Store.`
+            : `Buy ${product.name} - Premium custom products and merchandise.`;
 
         return {
-            title: `${product.name} | Anant Enterprises`,
+            title: `${product.name} | Ecommerce Store`,
             description,
             openGraph: {
                 title: product.name,
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
         };
     } catch (error) {
         return {
-            title: 'Product Not Found | Anant Enterprises',
+            title: 'Product Not Found | Ecommerce Store',
             description: 'The requested product could not be found.'
         };
     }

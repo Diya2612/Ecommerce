@@ -10,8 +10,8 @@ import { FEATURES } from '@/config/features';
 import { LoginTabs } from './LoginTabs';
 
 export const metadata = {
-    title: 'Login | Anant Enterprises',
-    description: 'Sign in to your Anant Enterprises account',
+    title: 'Login | Ecommerce Store',
+    description: 'Sign in to your Ecommerce account',
 };
 
 export default function LoginPage() {
