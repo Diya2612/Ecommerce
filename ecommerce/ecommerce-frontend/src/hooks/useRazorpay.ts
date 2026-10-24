@@ -240,7 +240,7 @@ export function useRazorpay(): UseRazorpayReturn {
 
             // 2. Options
             const options: RazorpayOptions = {
-                key: paymentData.razorpay_key_id,
+                key: paymentData.razorpay_key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
                 amount: Math.round(paymentData.amount), // Ensure integer (paise)
                 currency: paymentData.currency,
                 name: "Anant Enterprises",
