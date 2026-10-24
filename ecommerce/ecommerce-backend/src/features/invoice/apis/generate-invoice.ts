@@ -2,12 +2,12 @@ import { Router, Response, Request, NextFunction } from 'express';
 import { requireAuth, requireAnyPermission, validationMiddleware } from '../../../middlewares';
 import { ResponseFormatter } from '../../../utils';
 import { invoiceService } from '../services/invoice.service';
-import { generateInvoiceSchema } from '../shared/validation';
+import { orderInvoiceParamsSchema, generateInvoiceBodySchema } from '../shared/validation';
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id: orderId } = req.params as { id: string };
-    const { force } = req.body;
+    const { force } = req.body || {};
 
     const invoice = await invoiceService.generateInvoice(orderId, {
       forceNewVersion: force === true,
@@ -26,7 +26,8 @@ router.post(
   '/orders/:id/invoices',
   requireAuth,
   requireAnyPermission(['admin:system', 'orders:update', 'orders:write', 'orders:create']),
-  validationMiddleware(generateInvoiceSchema),
+  validationMiddleware(orderInvoiceParamsSchema, 'params'),
+  validationMiddleware(generateInvoiceBodySchema, 'body'),
   handler,
 );
 

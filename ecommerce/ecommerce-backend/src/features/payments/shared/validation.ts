@@ -1,20 +1,45 @@
 import { z } from 'zod';
 
-export const createPaymentOrderSchema = z.object({
-  order_id: z.string().uuid('Invalid order ID'),
+export const createPaymentOrderSchema = z.preprocess((val: any) => {
+  if (val && typeof val === 'object') {
+    return {
+      order_id: val.order_id || val.orderId,
+      payment_method: val.payment_method || val.paymentMethod || 'razorpay',
+      save_payment_method: val.save_payment_method ?? val.savePaymentMethod ?? false,
+    };
+  }
+  return val;
+}, z.object({
+  order_id: z.string().min(1, 'Invalid order ID'),
   payment_method: z.enum(['razorpay', 'cod']).default('razorpay'),
   save_payment_method: z.boolean().optional().default(false),
-});
+}));
 
-export const retryPaymentSchema = z.object({
-  order_id: z.string().uuid('Invalid order ID'),
-});
+export const retryPaymentSchema = z.preprocess((val: any) => {
+  if (val && typeof val === 'object') {
+    return {
+      order_id: val.order_id || val.orderId,
+    };
+  }
+  return val;
+}, z.object({
+  order_id: z.string().min(1, 'Invalid order ID'),
+}));
 
-export const verifyPaymentSchema = z.object({
+export const verifyPaymentSchema = z.preprocess((val: any) => {
+  if (val && typeof val === 'object') {
+    return {
+      razorpay_order_id: val.razorpay_order_id || val.razorpayOrderId,
+      razorpay_payment_id: val.razorpay_payment_id || val.razorpayPaymentId,
+      razorpay_signature: val.razorpay_signature || val.razorpaySignature,
+    };
+  }
+  return val;
+}, z.object({
   razorpay_order_id: z.string().min(1, 'Razorpay order ID is required'),
   razorpay_payment_id: z.string().min(1, 'Razorpay payment ID is required'),
   razorpay_signature: z.string().min(1, 'Signature is required'),
-});
+}));
 
 export const initiateRefundSchema = z.object({
   order_id: z.string().uuid('Invalid order ID'),

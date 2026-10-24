@@ -43,7 +43,7 @@ const router = Router();
 router.get(
   '/orders/:id/invoices/latest',
   requireAuth,
-  validationMiddleware(orderInvoiceParamsSchema),
+  validationMiddleware(orderInvoiceParamsSchema, 'params'),
   handler,
 );
 

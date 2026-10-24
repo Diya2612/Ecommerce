@@ -62,6 +62,7 @@ class OrderPaymentService {
 
         return {
           razorpay_order_id: existingTransaction.razorpay_order_id,
+          razorpay_key_id: RazorpayService.getKeyId(),
           amount: Number(existingOrder.total_amount) * 100,
           currency: existingOrder.currency || 'INR',
           order_id: existingOrder.id,

@@ -267,14 +267,25 @@ class OrderCreationService {
     const { users } = await import('../../user/shared/user.schema');
     const { eq } = await import('drizzle-orm');
 
-    const targetUserId = orderData.user_id || null;
+    const isValidUuid = (val: any) =>
+      typeof val === 'string' &&
+      val.trim().length > 0 &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val.trim());
+
+    const targetUserId = isValidUuid(orderData.user_id) ? orderData.user_id.trim() : null;
+    const shippingAddressId = isValidUuid(orderData.shipping_address_id)
+      ? orderData.shipping_address_id.trim()
+      : null;
+    const billingAddressId = isValidUuid(orderData.billing_address_id)
+      ? orderData.billing_address_id.trim()
+      : shippingAddressId;
 
     // 1. Validate Stock (STRICT: block overselling)
-    const stockItems = orderData.items
+    const stockItems = (orderData.items || [])
       .filter((item: any) => item.product_id)
       .map((item: any) => ({
         product_id: item.product_id,
-        quantity: item.quantity,
+        quantity: Number(item.quantity || 1),
         variant_id: item.variant_id,
       }));
 
@@ -284,20 +295,20 @@ class OrderCreationService {
 
     // 2. Calculate pricing SERVER-SIDE
     const pricing = await orderCalculationService.calculateOrderPricing({
-      items: orderData.items.map((item: any) => ({
+      items: (orderData.items || []).map((item: any) => ({
         product_id: item.product_id || null,
         product_name: item.product_name,
         product_sku: item.sku || '',
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        cost_price: item.cost_price || item.unit_price,
-        discount_percentage: item.discount_percentage,
-        discount_amount: item.discount_amount,
-        tax_percentage: item.tax_percentage,
+        quantity: Number(item.quantity || 1),
+        unit_price: Number(item.unit_price || 0),
+        cost_price: Number(item.cost_price || item.unit_price || 0),
+        discount_percentage: item.discount_percentage ? Number(item.discount_percentage) : undefined,
+        discount_amount: item.discount_amount ? Number(item.discount_amount) : undefined,
+        tax_percentage: item.tax_percentage ? Number(item.tax_percentage) : undefined,
       })),
       discount_code: orderData.discount_code,
-      shipping_amount: orderData.shipping_amount || 0,
-      delivery_price: orderData.delivery_price || orderData.shipping_amount || 0,
+      shipping_amount: Number(orderData.shipping_amount || 0),
+      delivery_price: Number(orderData.delivery_price || orderData.shipping_amount || 0),
       shipping_state: orderData.shipping_state,
       billing_state: orderData.billing_state,
     });
@@ -308,7 +319,7 @@ class OrderCreationService {
     const order = await db.transaction(async (tx) => {
       // Reserve stock (STRICT: No overselling allowed)
       if (stockItems.length > 0) {
-        await reserveStockForOrder(stockItems, orderNumber, targetUserId || 'GUEST', false);
+        await reserveStockForOrder(stockItems, orderNumber, targetUserId || 'GUEST', false, tx);
       }
 
       // Insert Order with SERVER-CALCULATED pricing
@@ -316,13 +327,13 @@ class OrderCreationService {
         {
           order_number: orderNumber,
           user_id: targetUserId,
-          shipping_address_id: orderData.shipping_address_id || null,
-          billing_address_id: orderData.billing_address_id || orderData.shipping_address_id || null,
+          shipping_address_id: shippingAddressId,
+          billing_address_id: billingAddressId,
           order_status: 'pending',
           is_draft: orderData.is_draft,
           payment_method: orderData.payment_method,
           payment_status: 'pending',
-          currency: orderData.currency,
+          currency: orderData.currency || 'INR',
 
           subtotal: pricing.subtotal.toFixed(2),
           discount_amount: pricing.discount_total.toFixed(2),
@@ -337,7 +348,7 @@ class OrderCreationService {
           tax_amount: pricing.tax_amount.toFixed(2),
           total_amount: pricing.total_amount.toFixed(2),
           total_quantity: pricing.total_quantity,
-          advance_paid_amount: orderData.advance_paid_amount?.toFixed(2) || '0',
+          advance_paid_amount: Number(orderData.advance_paid_amount || 0).toFixed(2),
 
           customer_note: orderData.customer_note,
           admin_comment: orderData.admin_comment,
@@ -350,15 +361,18 @@ class OrderCreationService {
       );
 
       // Insert Items with calculated pricing
-      const orderItemsData = orderData.items.map((item: any, index: number) => ({
+      const orderItemsData = (orderData.items || []).map((item: any, index: number) => ({
         order_id: newOrder.id,
         product_id: item.product_id || null,
         sku: item.sku || `CUSTOM-${Date.now()}-${index}`,
         product_name: item.product_name,
         product_image: item.product_image,
-        cost_price: (item.cost_price || item.unit_price).toFixed(2),
-        quantity: item.quantity,
-        line_total: pricing.items[index].line_total.toFixed(2),
+        cost_price: Number(item.cost_price || item.unit_price || 0).toFixed(2),
+        quantity: Number(item.quantity || 1),
+        line_total: Number(
+          pricing.items[index]?.line_total ??
+            Number(item.quantity || 1) * Number(item.unit_price || 0),
+        ).toFixed(2),
         variant_id: item.variant_id,
         discount_type: item.discount_percentage
           ? 'percentage'

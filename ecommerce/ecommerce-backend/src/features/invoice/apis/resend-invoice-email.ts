@@ -46,7 +46,7 @@ router.post(
   '/invoices/:versionId/email',
   requireAuth,
   requireAnyPermission(['admin:system', 'orders:update', 'orders:write', 'orders:read']),
-  validationMiddleware(invoiceVersionParamsSchema),
+  validationMiddleware(invoiceVersionParamsSchema, 'params'),
   handler,
 );
 

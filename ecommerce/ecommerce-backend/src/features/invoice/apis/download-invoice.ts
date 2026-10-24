@@ -34,7 +34,7 @@ const router = Router();
 router.get(
   '/:versionId/download',
   requireAuth,
-  validationMiddleware(invoiceVersionParamsSchema),
+  validationMiddleware(invoiceVersionParamsSchema, 'params'),
   handler,
 );
 

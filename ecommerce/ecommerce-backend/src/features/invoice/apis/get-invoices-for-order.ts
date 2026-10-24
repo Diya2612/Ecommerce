@@ -21,7 +21,7 @@ router.get(
   '/orders/:id/invoices',
   requireAuth,
   requireAnyPermission(['admin:system', 'orders:read', 'orders:update']),
-  validationMiddleware(orderInvoiceParamsSchema),
+  validationMiddleware(orderInvoiceParamsSchema, 'params'),
   handler,
 );
 
