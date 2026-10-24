@@ -108,6 +108,7 @@ class OrderPaymentService {
 
       return {
         razorpay_order_id: razorpayOrder.id,
+        razorpay_key_id: RazorpayService.getKeyId(),
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
         order_id: existingOrder.id,

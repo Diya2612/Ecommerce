@@ -1,5 +1,5 @@
 import { Router, Response, Request, NextFunction } from 'express';
-import { requireAuth, requirePermission, validationMiddleware } from '../../../middlewares';
+import { requireAuth, requireAnyPermission, validationMiddleware } from '../../../middlewares';
 import { ResponseFormatter } from '../../../utils';
 import { invoiceService } from '../services/invoice.service';
 import { generateInvoiceSchema } from '../shared/validation';
@@ -25,7 +25,7 @@ const router = Router();
 router.post(
   '/orders/:id/invoices',
   requireAuth,
-  requirePermission('admin:system'),
+  requireAnyPermission(['admin:system', 'orders:update', 'orders:write', 'orders:create']),
   validationMiddleware(generateInvoiceSchema),
   handler,
 );

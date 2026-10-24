@@ -1,5 +1,5 @@
 import { Router, Response, Request, NextFunction } from 'express';
-import { requireAuth, requirePermission, validationMiddleware } from '../../../middlewares';
+import { requireAuth, requireAnyPermission, validationMiddleware } from '../../../middlewares';
 import { ResponseFormatter, HttpException } from '../../../utils';
 import { invoiceService } from '../services/invoice.service';
 import { eventPublisher } from '../../queue/services/event-publisher.service';
@@ -45,7 +45,7 @@ const router = Router();
 router.post(
   '/invoices/:versionId/email',
   requireAuth,
-  requirePermission('admin:system'),
+  requireAnyPermission(['admin:system', 'orders:update', 'orders:write', 'orders:read']),
   validationMiddleware(invoiceVersionParamsSchema),
   handler,
 );
