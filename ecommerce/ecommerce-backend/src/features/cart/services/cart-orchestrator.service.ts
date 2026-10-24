@@ -65,6 +65,15 @@ export class CartOrchestratorService {
   async getCartWithDetails(userId?: string, sessionId?: string): Promise<ICartResponse> {
     if (!userId && !sessionId) return cartCoreService.buildEmptyCartResponse(false);
 
+    if (userId && sessionId) {
+      try {
+        const { cartMergeService } = await import('./cart-merge.service');
+        await cartMergeService.mergeGuestCartIntoUserCart(userId, sessionId);
+      } catch {
+        // Safe to ignore if merge in progress or not needed
+      }
+    }
+
     const cart = await cartCoreService.getActiveCart(userId, sessionId);
     const hasUnmergedGuestCart = userId
       ? await cartCoreService.checkUnmergedGuestCart(sessionId)

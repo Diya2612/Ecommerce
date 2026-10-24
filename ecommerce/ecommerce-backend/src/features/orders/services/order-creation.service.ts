@@ -63,6 +63,7 @@ class OrderCreationService {
   ) {
     const {
       findActiveCartByUserId,
+      findCartBySessionId,
       getCartItems,
       findAddressById,
       findUserById,
@@ -77,19 +78,39 @@ class OrderCreationService {
     const { wishlists } = await import('../../wishlist/shared/wishlist.schema');
     const { eq } = await import('drizzle-orm');
 
+    // Auto-merge guest cart into user cart if sessionId is provided
+    if (sessionId) {
+      try {
+        const { cartMergeService } = await import('../../cart/services/cart-merge.service');
+        await cartMergeService.mergeGuestCartIntoUserCart(userId, sessionId);
+      } catch {
+        // Safe to ignore if merge in progress or not needed
+      }
+    }
+
     // Find user's active cart
     let cart = await findActiveCartByUserId(userId);
+    let items = cart ? await getCartItems(cart.id) : [];
 
-    // FALLBACK: Check for unmerged guest cart
-    if (!cart && sessionId) {
-      const guestCart = await findActiveCartByUserId(sessionId);
+    // FALLBACK: If user cart is missing or empty, check guest cart by sessionId
+    if ((!cart || items.length === 0) && sessionId) {
+      const guestCart = await findCartBySessionId(sessionId);
       if (guestCart) {
-        // Auto-assign guest cart to user
-        await db
-          .update(carts)
-          .set({ user_id: userId, updated_at: new Date() })
-          .where(eq(carts.id, guestCart.id));
-        cart = { ...guestCart, user_id: userId };
+        const guestItems = await getCartItems(guestCart.id);
+        if (guestItems.length > 0) {
+          if (cart) {
+            await db
+              .update(carts)
+              .set({ cart_status: 'abandoned', is_deleted: true, updated_at: new Date() })
+              .where(eq(carts.id, cart.id));
+          }
+          await db
+            .update(carts)
+            .set({ user_id: userId, updated_at: new Date() })
+            .where(eq(carts.id, guestCart.id));
+          cart = { ...guestCart, user_id: userId };
+          items = guestItems;
+        }
       }
     }
 
@@ -97,8 +118,6 @@ class OrderCreationService {
       throw new HttpException(400, 'No active cart found');
     }
 
-    // Get cart items
-    const items = await getCartItems(cart.id);
     if (items.length === 0) {
       throw new HttpException(400, 'Cart is empty');
     }
