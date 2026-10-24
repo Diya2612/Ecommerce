@@ -415,12 +415,18 @@ export const orderService = {
   /**
    * Create a payment order (Razorpay)
    */
-  async createPaymentOrder(data: { orderId: string, paymentMethod: string }): Promise<any> {
+  async createPaymentOrder(data: { orderId: string; paymentMethod: string }): Promise<any> {
+    const payload = {
+      order_id: data.orderId,
+      orderId: data.orderId,
+      payment_method: data.paymentMethod || 'razorpay',
+      paymentMethod: data.paymentMethod || 'razorpay',
+    };
     const response = await makePostRequest<any>(
       API_ROUTES.ORDERS.CREATE_PAYMENT_ORDER,
-      data
+      payload,
     );
-    return response.data.data;  // Unwrap inner data from { success, data, message } wrapper
+    return response.data?.data || response.data;
   },
 
   /**
