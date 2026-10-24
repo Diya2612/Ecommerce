@@ -38,8 +38,6 @@ import {
     getStatusColor,
     getPaymentColor,
     getFulfillmentColor,
-    ORDER_LIFECYCLE_STEPS,
-    getOrderLifecycleStep,
     isTerminalState,
     type StatusWarning,
 } from '@/features/orders/utils/statusHelpers';
@@ -109,8 +107,6 @@ export function OrderStatusManagement({
         updatePayment.isPending ||
         updateFulfillment.isPending;
 
-    // Get current lifecycle step
-    const currentStep = getOrderLifecycleStep(orderStatus);
     const isTerminal = isTerminalState(orderStatus);
 
     // Get status warnings
@@ -241,100 +237,7 @@ export function OrderStatusManagement({
                     </div>
                 </CardHeader>
 
-                <CardContent className="space-y-6">
-                    {/* Order Lifecycle Timeline */}
-                    <div className="space-y-3">
-                        <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                            Order Lifecycle
-                        </p>
-                        <div className="overflow-x-auto pb-2 -mx-1 px-1 custom-scrollbar">
-                            <div className="flex items-center justify-between min-w-[600px] sm:min-w-0">
-                                {ORDER_LIFECYCLE_STEPS.map((step, index) => {
-                                    const isCompleted = index < currentStep;
-                                    const isCurrent = index === currentStep;
-                                    const isAlternateState = currentStep === -1;
-
-                                    return (
-                                        <div key={step.value} className="flex flex-col items-center flex-1">
-                                            {/* Step indicator */}
-                                            <div className="flex items-center w-full">
-                                                {/* Line before (except first) */}
-                                                {index > 0 && (
-                                                    <div
-                                                        className={cn(
-                                                            'h-[3px] flex-1 transition-colors rounded-full',
-                                                            isCompleted || isCurrent
-                                                                ? 'bg-gradient-to-r from-emerald-400 to-emerald-500'
-                                                                : isAlternateState
-                                                                    ? 'bg-red-200'
-                                                                    : 'bg-slate-200'
-                                                        )}
-                                                    />
-                                                )}
-                                                {/* Circle */}
-                                                <div
-                                                    className={cn(
-                                                        'size-7 rounded-full flex items-center justify-center transition-all shrink-0 shadow-sm',
-                                                        isCompleted
-                                                            ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-emerald-200'
-                                                            : isCurrent
-                                                                ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white ring-4 ring-blue-50 shadow-blue-200'
-                                                                : isAlternateState
-                                                                    ? 'bg-red-50 text-red-500 border-2 border-red-200'
-                                                                    : 'bg-slate-50 text-slate-400 border-2 border-slate-200'
-                                                    )}
-                                                >
-                                                    {isCompleted ? (
-                                                        <Check className="size-4 stroke-[2.5]" />
-                                                    ) : isCurrent ? (
-                                                        <div className="size-2.5 bg-white rounded-full shadow-sm" />
-                                                    ) : (
-                                                        <div className="size-2 bg-current rounded-full opacity-40" />
-                                                    )}
-                                                </div>
-                                                {/* Line after (except last) */}
-                                                {index < ORDER_LIFECYCLE_STEPS.length - 1 && (
-                                                    <div
-                                                        className={cn(
-                                                            'h-[3px] flex-1 transition-colors rounded-full',
-                                                            isCompleted ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' : 'bg-slate-200'
-                                                        )}
-                                                    />
-                                                )}
-                                            </div>
-                                            {/* Label */}
-                                            <span
-                                                className={cn(
-                                                    'text-[11px] mt-2 font-semibold text-center whitespace-nowrap',
-                                                    isCurrent
-                                                        ? 'text-blue-700'
-                                                        : isCompleted
-                                                            ? 'text-emerald-700'
-                                                            : 'text-slate-400'
-                                                )}
-                                            >
-                                                {step.label}
-                                            </span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                        {/* Show alternate state badge */}
-                        {isTerminal && ['cancelled', 'refunded', 'returned'].includes(orderStatus.toLowerCase()) && (
-                            <div className="flex justify-center mt-3">
-                                <Badge
-                                    variant="destructive"
-                                    className="text-xs px-3 py-1.5 font-semibold shadow-sm"
-                                >
-                                    {getStatusLabel(orderStatus)}
-                                </Badge>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="border-t border-slate-100" />
-
+                <CardContent className="space-y-4">
                     {/* Status Cards Grid */}
                     <div className="grid grid-cols-1 gap-3">
                         {/* Order Status */}

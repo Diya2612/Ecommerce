@@ -212,7 +212,8 @@ export function useRazorpay(options?: UseRazorpayOptions): UseRazorpayReturn {
                 throw new Error("Failed to load Razorpay SDK. Please check your internet connection.");
             }
 
-            if (!paymentData.razorpay_key_id) {
+            const razorpayKey = paymentData.razorpay_key_id || (import.meta as any).env?.VITE_RAZORPAY_KEY_ID;
+            if (!razorpayKey) {
                 throw new Error("Payment configuration missing. Please contact support.");
             }
 
@@ -220,7 +221,7 @@ export function useRazorpay(options?: UseRazorpayOptions): UseRazorpayReturn {
 
             // 2. Options
             const options: RazorpayOptions = {
-                key: paymentData.razorpay_key_id,
+                key: razorpayKey,
                 amount: Math.round(paymentData.amount), // Ensure integer (paise)
                 currency: paymentData.currency,
                 name: "Anant Enterprises",

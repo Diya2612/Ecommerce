@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   User,
-  Truck,
   MoreVertical,
   Copy,
   Trash2,
@@ -11,13 +10,11 @@ import {
   Save,
   Plus,
   Pencil,
-  Lock,
   Edit,
   XCircle,
   CheckCircle2,
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -49,8 +46,6 @@ import { OrderItemsList } from "../..";
 import { DraftModeBanner } from "./DraftModeBanner";
 // import { QuickActionsCard } from "./QuickActionsCard";
 import { PaymentCard } from "./PaymentCard";
-import { OrderTimelineCard } from "./OrderTimelineCard";
-import type { TimelineEvent } from "./OrderTimelineCard";
 import { AddProductModal } from "../..";
 
 import { OrderDiscountModal } from "../..";
@@ -59,7 +54,6 @@ import { AddressSelector } from "../..";
 import { StatusBadge } from "../..";
 import { OrderStatusManagement } from "@/features/orders/components/order-detail/OrderStatusManagement";
 import { MarkAsPaidModal } from "../..";
-import { OrderStatusStepper } from "../../components";
 import { OrderSummaryCard } from "../../components";
 
 import { ROUTES } from "@/lib/constants";
@@ -67,7 +61,7 @@ import { notifyInfo } from "@/utils";
 import {
   calculateItemsSubtotal,
 } from "@/features/orders/utils/orderCalculations";
-import { NotesTags } from "@/features/notes/components/NotesTags";
+
 import { UnsavedChangesGuard } from "@/components/guards";
 import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
 import { InvoiceManager } from "@/features/invoices/components/InvoiceManager";
@@ -118,12 +112,10 @@ export function CreateOrderForm({
     errors,
     handleCustomerChange,
     handleAddressChange,
-    handleSameAsShippingChange,
     handleAddItem,
     handleUpdateQuantity,
     handleRemoveItem,
     handleUpdateItemsStock,
-    handleNotesChange,
     handleCancel,
     handleCreateOrder,
     handleApplyOrderDiscount,
@@ -232,7 +224,6 @@ export function CreateOrderForm({
 
   // Modal states
   const [showCustomerModal, setShowCustomerModal] = useState(false);
-  const [showTagsModal, setShowTagsModal] = useState(false);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [addProductDefaultTab, setAddProductDefaultTab] = useState<"browse" | "custom">("browse");
   const [showOrderDiscountModal, setShowOrderDiscountModal] = useState(false);
@@ -241,11 +232,6 @@ export function CreateOrderForm({
   const [showDeleteBlocked, setShowDeleteBlocked] = useState(false);
   const [showMarkAsPaidModal, setShowMarkAsPaidModal] = useState(false);
   const [deleteBlockedReason, setDeleteBlockedReason] = useState("");
-
-  // Local UI states
-  const [availableTags] = useState<string[]>([]);
-
-  const handleTagCreated = () => { };
 
   const isEditMode = mode === "edit";
   const title = isEditMode
@@ -401,9 +387,6 @@ export function CreateOrderForm({
   };
   const handleShippingAddressSelect = (address: Address) => {
     handleAddressChange("shipping", address);
-  };
-  const handleBillingAddressSelect = (address: Address) => {
-    handleAddressChange("billing", address);
   };
 
   // Header Actions - updated for direct usage in the new header layout
@@ -612,14 +595,6 @@ export function CreateOrderForm({
         )}
 
         <div className="px-6 lg:px-8 pb-8">
-          {isEditMode && formData.orderStatus && (
-            <div className="mb-6 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-              <OrderStatusStepper
-                currentStatus={formData.orderStatus}
-                orderDate={formData.orderDate}
-              />
-            </div>
-          )}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* LEFT COLUMN */}
             <div className="lg:col-span-2 space-y-6">
@@ -671,21 +646,6 @@ export function CreateOrderForm({
                 />
               )}
 
-              {/* 3. ORDER TIMELINE CARD */}
-              <OrderTimelineCard
-                events={[
-                  {
-                    id: "init",
-                    action: isEditMode ? "Order loaded for editing" : "Order draft initialized",
-                    details: isEditMode
-                      ? `Editing ${formData.orderNumber || "order"}`
-                      : "New order created",
-                    user: "System",
-                    timestamp: new Date().toISOString(),
-                    type: "system",
-                  },
-                ] satisfies TimelineEvent[]}
-              />
             </div>
 
             {/* RIGHT COLUMN */}
@@ -852,127 +812,14 @@ export function CreateOrderForm({
                 orderId={orderId}
                 onPayWithCard={handlePayWithCard}
                 onMarkAsPaid={handleMarkAsPaidClick}
-                onEmailInvoice={() => {
-                  // TODO: Implement email payment invoice functionality
-                  console.log("Email payment invoice");
-                }}
+                onEmailInvoice={() => {}}
               />
-
-              {/* 3. BILLING DETAILS CARD */}
-              <FormSection
-                icon={Truck}
-                title="Billing Details"
-                className={errors.billingAddress ? "border-red-300 border-2" : ""}
-              >
-                {/* Billing Address */}
-                <div id="billing-address-section">
-                  <div className="flex items-center justify-between mb-3">
-                    <Label className="text-xs text-slate-600">
-                      Billing Address <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        id="billingSameAsShipping"
-                        checked={formData.billingSameAsShipping}
-                        onChange={(e) => handleSameAsShippingChange(e.target.checked)}
-                        className="w-3.5 h-3.5 rounded border-slate-300 accent-[#0E042F] focus:ring-[#0E042F] cursor-pointer"
-                      />
-                      <Label htmlFor="billingSameAsShipping" className="text-xs text-slate-700 cursor-pointer">
-                        Same as shipping
-                      </Label>
-                    </div>
-                  </div>
-
-                  {!formData.billingSameAsShipping && (
-                    <div>
-                      <AddressSelector
-                        customer={formData.customer}
-                        selectedAddress={formData.billingAddress}
-                        onSelect={handleBillingAddressSelect}
-                        addressType="billing"
-                      />
-                      {errors.billingAddress && (
-                        <p className="text-red-400 text-xs mt-1.5">{errors.billingAddress}</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="border-t border-slate-100 my-4" />
-
-                {/* Order Source & PO */}
-                <div className="space-y-4">
-                  <div>
-                    <Label className="flex items-center gap-2 text-xs text-slate-600 mb-1.5 block">
-                      Order Source
-                      {!formData.isDraftOrder && <Lock className="w-3 h-3 text-slate-400" />}
-                    </Label>
-                    <Select
-                      value={formData.salesChannel}
-                      onValueChange={(val: any) => updateFields({ salesChannel: val })}
-                      disabled={!formData.isDraftOrder}
-                    >
-                      <SelectTrigger className="h-9">
-                        <SelectValue placeholder="Select source" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="website">Website</SelectItem>
-                        <SelectItem value="amazon">Amazon</SelectItem>
-                        <SelectItem value="flipkart">Flipkart</SelectItem>
-                        <SelectItem value="retail">Retail</SelectItem>
-                        <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label className="flex items-center gap-2 text-xs text-slate-600 mb-1.5 block">
-                      PO Number
-                      {!formData.isDraftOrder && <Lock className="w-3 h-3 text-slate-400" />}
-                    </Label>
-                    <Input
-                      placeholder="#PO-2025-001"
-                      className="h-9"
-                      disabled={!formData.isDraftOrder}
-                      value={formData.amazonOrderRef}
-                      onChange={(e) => updateFields({ amazonOrderRef: e.target.value })}
-                    />
-                  </div>
-                </div>
-              </FormSection>
-
-              {/* 3. NOTES & TAGS */}
-              <NotesTags
-                tags={formData.orderTags}
-                availableTags={availableTags}
-                onTagsChange={(val) => handleNotesChange("orderTags", val)}
-                adminComment={formData.adminComment}
-                onAdminCommentChange={(val) =>
-                  handleNotesChange("adminComment", val)
-                }
-                customerNote={formData.customerNote}
-                onCustomerNoteChange={(val) =>
-                  handleNotesChange("customerNote", val)
-                }
-                showCustomerNote={false}
-                tagType="order"
-                onTagCreated={handleTagCreated}
-              />
-
 
             </div>
           </div>
         </div>
 
         {/* --- MODALS --- */}
-        <MarkAsPaidModal
-          isOpen={showMarkAsPaidModal}
-          onClose={() => setShowMarkAsPaidModal(false)}
-          onConfirm={handleConfirmMarkAsPaid}
-          isLoading={updatePaymentMutation.isPending}
-        />
-
         <MarkAsPaidModal
           isOpen={showMarkAsPaidModal}
           onClose={() => setShowMarkAsPaidModal(false)}
@@ -998,15 +845,6 @@ export function CreateOrderForm({
               onSelect={handleCustomerSelect}
               variant="embedded"
             />
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={showTagsModal} onOpenChange={setShowTagsModal}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Manage Tags</DialogTitle>
-            </DialogHeader>
-            <p className="text-sm text-slate-500">Tag management coming soon</p>
           </DialogContent>
         </Dialog>
 

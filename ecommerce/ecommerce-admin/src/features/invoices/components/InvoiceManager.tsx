@@ -55,9 +55,10 @@ export function InvoiceManager({
     try {
       setIsLoading(true);
       const data = await invoiceService.getInvoicesForOrder(orderId);
-      setInvoices(data);
+      setInvoices(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Failed to fetch invoices:", error);
+      setInvoices([]);
       toast.error("Could not load invoices");
     } finally {
       setIsLoading(false);
@@ -132,18 +133,18 @@ export function InvoiceManager({
   //    - If Order.lastModified > LatestInvoice.created_at -> CAN REGENERATE (Order changed).
   //    - Else -> DISABLE REGENERATE (Order is same as invoice state).
 
-  // Sort invoices by created_at desc to assume [0] is latest just in case, though usually API does this.
-  const sortedInvoices = [...invoices].sort(
+  const safeInvoices = Array.isArray(invoices) ? invoices : [];
+  const sortedInvoices = [...safeInvoices].sort(
     (a, b) =>
-      new Date(b.version.created_at).getTime() -
-      new Date(a.version.created_at).getTime(),
+      new Date(b.version?.created_at || 0).getTime() -
+      new Date(a.version?.created_at || 0).getTime(),
   );
   const latestInvoice = sortedInvoices[0];
 
-  const hasInvoices = invoices.length > 0;
+  const hasInvoices = safeInvoices.length > 0;
 
   let canRegenerate = false;
-  if (hasInvoices && lastModified && latestInvoice) {
+  if (hasInvoices && lastModified && latestInvoice?.version?.created_at) {
     const orderTime = new Date(lastModified).getTime();
     const invoiceTime = new Date(latestInvoice.version.created_at).getTime();
     // Allow some buffer (e.g. 1 sec) or precise comparison

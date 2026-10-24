@@ -8,10 +8,18 @@ export const invoiceService = {
    * Get all invoices for a specific order
    */
   getInvoicesForOrder: async (orderId: string): Promise<InvoiceResponse[]> => {
-    const response = await httpClient.get<{ data: InvoiceResponse[] }>(
-      `${BASE_URL}/${orderId}/invoices`,
-    );
-    return response.data.data;
+    try {
+      const response = await httpClient.get<any>(
+        `${BASE_URL}/${orderId}/invoices`,
+      );
+      const data = response?.data?.data ?? response?.data;
+      return Array.isArray(data) ? data : [];
+    } catch (err: any) {
+      if (err?.response?.status === 404) {
+        return [];
+      }
+      throw err;
+    }
   },
 
   /**

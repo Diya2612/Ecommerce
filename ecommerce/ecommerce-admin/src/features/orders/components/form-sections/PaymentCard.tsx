@@ -1,4 +1,4 @@
-import { CreditCard, Lock, Wallet, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { CreditCard, Lock, CheckCircle2, Clock, AlertCircle, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -10,7 +10,7 @@ export interface PaymentCardProps {
   isDraftMode: boolean;
   /** Payment status from formData */
   paymentStatus: string;
-  /** Payment method (prepaid, cod, partial, etc.) */
+  /** Payment method (prepaid, cod, etc.) */
   paymentMethod?: string;
   /** Order currency symbol */
   currencySymbol?: string;
@@ -35,17 +35,6 @@ export interface PaymentCardProps {
   /** Triggered when user clicks "Email Payment Invoice" */
   onEmailInvoice: () => void;
 }
-
-const PAYMENT_METHOD_LABELS: Record<string, string> = {
-  prepaid: "Prepaid",
-  cod: "Cash on Delivery",
-  partial: "Partial Payment",
-  credit: "Credit / Net Terms",
-  bank_transfer: "Bank Transfer",
-  upi: "UPI",
-  cheque: "Cheque",
-  razorpay: "Razorpay",
-};
 
 const PAYMENT_STATUS_CONFIG: Record<
   string,
@@ -86,7 +75,6 @@ const PAYMENT_STATUS_CONFIG: Record<
 export function PaymentCard({
   isDraftMode,
   paymentStatus,
-  paymentMethod,
   currencySymbol = "₹",
   grandTotal,
   advancePaid = 0,
@@ -97,7 +85,6 @@ export function PaymentCard({
   orderId,
   onPayWithCard,
   onMarkAsPaid,
-  onEmailInvoice,
 }: PaymentCardProps) {
   const statusConfig = PAYMENT_STATUS_CONFIG[paymentStatus] ?? PAYMENT_STATUS_CONFIG.pending;
   const StatusIcon = statusConfig.icon;
@@ -132,8 +119,7 @@ export function PaymentCard({
             Save Order to Accept Payment
           </p>
           <p className="text-xs text-slate-500">
-            Payment collection and online payment links are available after the
-            order is created
+            Payment collection is available after the order is created
           </p>
         </div>
       )}
@@ -141,18 +127,31 @@ export function PaymentCard({
       {/* Active Payment Content */}
       {!isDraftMode && (
         <>
-          {/* Payment Method Row */}
-          {paymentMethod && (
-            <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-              <div className="flex items-center gap-2">
-                <Wallet className="w-3.5 h-3.5 text-slate-500" />
-                <span className="text-xs text-slate-600 font-medium">Method</span>
+          {/* Payment Method — Razorpay Online */}
+          <div className="flex items-center justify-between bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2.5">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded bg-[#072654] flex items-center justify-center shrink-0">
+                <Zap className="w-3.5 h-3.5 text-white" />
               </div>
-              <span className="text-xs font-semibold text-slate-800">
-                {PAYMENT_METHOD_LABELS[paymentMethod] ?? paymentMethod}
-              </span>
+              <div>
+                <p className="text-xs font-semibold text-slate-800">Razorpay</p>
+                <p className="text-[10px] text-slate-500">Online Payment</p>
+              </div>
             </div>
-          )}
+            <Badge className="text-[10px] bg-indigo-100 text-indigo-700 border-indigo-200 border">
+              Active
+            </Badge>
+          </div>
+
+          {/* COD — Hidden for now, reserved for future */}
+          {/* 
+          <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5">
+            <div className="flex items-center gap-2">
+              <Wallet className="w-4 h-4 text-slate-500" />
+              <p className="text-xs font-semibold text-slate-800">Cash on Delivery</p>
+            </div>
+          </div>
+          */}
 
           {/* Financial Summary */}
           <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 space-y-1.5">
@@ -193,37 +192,29 @@ export function PaymentCard({
           {/* Action Buttons */}
           {!isPaid && (
             <div className="space-y-2 pt-1">
+              {/* Primary: Pay via Razorpay */}
               <Button
                 variant="default"
                 size="sm"
                 onClick={onPayWithCard}
                 disabled={!hasItems || isRazorpayBusy || !orderId}
-                className="w-full h-8 text-xs bg-[#0e042f] hover:bg-[#0e042f]/90 text-white rounded-lg"
+                className="w-full h-9 text-xs bg-[#072654] hover:bg-[#072654]/90 text-white rounded-lg font-medium gap-2"
               >
-                <CreditCard className="w-3.5 h-3.5 mr-1.5" />
-                {isRazorpayBusy ? "Loading..." : "Pay with Razorpay"}
+                <Zap className="w-3.5 h-3.5" />
+                {isRazorpayBusy ? "Loading Razorpay..." : "Pay via Razorpay"}
               </Button>
 
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onMarkAsPaid}
-                  disabled={!hasItems || isMarkingPaid || !orderId}
-                  className="h-8 text-xs rounded-lg"
-                >
-                  {isMarkingPaid ? "Updating..." : "Mark as Paid"}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onEmailInvoice}
-                  disabled={!hasItems}
-                  className="h-8 text-xs rounded-lg"
-                >
-                  Email Invoice
-                </Button>
-              </div>
+              {/* Secondary: Mark as Paid manually */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onMarkAsPaid}
+                disabled={!hasItems || isMarkingPaid || !orderId}
+                className="w-full h-8 text-xs rounded-lg border-slate-300 text-slate-700 hover:bg-slate-50"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
+                {isMarkingPaid ? "Updating..." : "Mark as Paid"}
+              </Button>
 
               {!orderId && (
                 <p className="text-[11px] text-slate-400 text-center pt-0.5">
