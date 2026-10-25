@@ -586,25 +586,28 @@ export function OrderDetailView({ orderId, onBack }: OrderDetailViewProps) {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={handleDownloadInvoice}
-            disabled={
-              (!invoice && !isInvoiceLoading) ||
-              downloading ||
-              isInvoiceLoading ||
-              order.payment_status !== "paid"
-            }
-          >
-            {downloading || isInvoiceLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Download className="w-4 h-4" />
-            )}
-            Invoice
-          </Button>
+          {/* Invoice button hidden as requested */}
+          {false && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={handleDownloadInvoice}
+              disabled={
+                (!invoice && !isInvoiceLoading) ||
+                downloading ||
+                isInvoiceLoading ||
+                order.payment_status !== "paid"
+              }
+            >
+              {downloading || isInvoiceLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              Invoice
+            </Button>
+          )}
           <Button variant="outline" size="sm" className="gap-2">
             <HelpCircle className="w-4 h-4" />
             Help
@@ -839,25 +842,28 @@ export function OrderDetailView({ orderId, onBack }: OrderDetailViewProps) {
           )}
 
           {/* Quick Actions - Mobile Only */}
-          <div className="lg:hidden grid grid-cols-2 gap-3">
-            <Button
-              variant="outline"
-              className="h-11 gap-2 rounded-xl"
-              onClick={handleDownloadInvoice}
-              disabled={
-                (!invoice && !isInvoiceLoading) ||
-                downloading ||
-                isInvoiceLoading ||
-                order.payment_status !== "paid"
-              }
-            >
-              {downloading || isInvoiceLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Download className="w-4 h-4" />
-              )}
-              Invoice
-            </Button>
+          <div className="lg:hidden grid grid-cols-1 gap-3">
+            {/* Invoice button hidden as requested */}
+            {false && (
+              <Button
+                variant="outline"
+                className="h-11 gap-2 rounded-xl"
+                onClick={handleDownloadInvoice}
+                disabled={
+                  (!invoice && !isInvoiceLoading) ||
+                  downloading ||
+                  isInvoiceLoading ||
+                  order.payment_status !== "paid"
+                }
+              >
+                {downloading || isInvoiceLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                Invoice
+              </Button>
+            )}
             <Button variant="outline" className="h-11 gap-2 rounded-xl">
               <MessageCircle className="w-4 h-4" />
               Support

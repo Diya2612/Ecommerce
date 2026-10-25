@@ -232,7 +232,7 @@ export function useRazorpay(): UseRazorpayReturn {
         try {
             // 1. Load SDK
             const isLoaded = await loadRazorpaySDK();
-            if (!isLoaded) {
+            if (!isLoaded || (typeof isLoaded === 'object' && 'loaded' in isLoaded && !(isLoaded as any).loaded)) {
                 throw new Error("Failed to load Razorpay SDK. Please check your internet connection.");
             }
 
