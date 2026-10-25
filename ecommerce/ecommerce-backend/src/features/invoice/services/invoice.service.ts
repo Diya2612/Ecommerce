@@ -55,7 +55,7 @@ export class InvoiceService {
       ? await invoiceQueries.getAddressById(order.shipping_address_id)
       : null;
 
-    return await db.transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       let invoiceId = '';
       let versionNumber = 1;
       let invoiceNumber = '';

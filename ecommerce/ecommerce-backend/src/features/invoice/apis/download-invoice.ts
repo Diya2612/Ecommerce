@@ -16,15 +16,17 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const storageResult = await downloadFromStorage(invoiceVersion.pdf_path);
+    const arrayBuffer = await storageResult.blob.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
     res.setHeader('Content-Type', storageResult.contentType);
-    res.setHeader('Content-Length', storageResult.contentLength.toString());
+    res.setHeader('Content-Length', buffer.length.toString());
     res.setHeader(
       'Content-Disposition',
       `attachment; filename="${invoiceVersion.invoice_number}.pdf"`,
     );
 
-    res.send(storageResult.blob);
+    res.send(buffer);
   } catch (error) {
     next(error);
   }
