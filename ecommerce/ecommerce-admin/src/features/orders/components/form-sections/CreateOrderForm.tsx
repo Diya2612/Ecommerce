@@ -637,14 +637,14 @@ export function CreateOrderForm({
                 onRoundingChange={handleRoundingChange}
               />
 
-              {/* 2. INVOICE CARD */}
-              {orderId && (
+              {/* 2. INVOICE CARD (Commented out for now) */}
+              {/* {orderId && (
                 <InvoiceManager
                   orderId={orderId}
                   lastModified={lastModified}
                   variant="embedded"
                 />
-              )}
+              )} */}
 
             </div>
 
