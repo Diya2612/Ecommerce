@@ -324,7 +324,14 @@ export function useMergeCartMutation() {
 // --- Main Hook (Facade) ---
 
 export function useCart() {
-  const { data: cartItems = [], isLoading, error, refetch } = useCartQuery();
+  const {
+    data: cartItems = [],
+    isLoading,
+    isPending,
+    isFetching,
+    error,
+    refetch,
+  } = useCartQuery();
 
   // Mutations
   const addMutation = useAddToCartMutation();
@@ -481,6 +488,8 @@ export function useCart() {
   return {
     cartItems,
     isLoading,
+    isPending,
+    isFetching,
     error: error ? (error as Error).message : null,
     addToCart,
     removeFromCart,

@@ -28,7 +28,7 @@ export function CheckoutGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { cartItems, isLoading } = useCart();
+  const { cartItems, isLoading, isPending, isFetching } = useCart();
   const { isPaymentProcessing } = useCheckout();
   const hasRedirected = useRef(false);
   const checkTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -39,16 +39,13 @@ export function CheckoutGuard({ children }: { children: ReactNode }) {
     if (hasRedirected.current) return;
 
     // CRITICAL: Check sessionStorage FIRST - this must happen before any state-based checks
-    // sessionStorage is set synchronously, while React state updates are async
     if (isPaymentInProgressFromStorage()) {
-
       setIsVerified(true);
       return;
     }
 
     // CRITICAL: Never redirect from success page
     if (pathname?.includes("/checkout/success")) {
-
       setIsVerified(true);
       return;
     }
@@ -58,74 +55,48 @@ export function CheckoutGuard({ children }: { children: ReactNode }) {
     const orderIdParam = searchParams?.get("orderId");
 
     if (verifiedParam === "1" || orderIdParam) {
-
       setIsVerified(true);
       return;
     }
 
-    // Check React state (async, may have race condition)
+    // Check React state (payment in progress)
     if (isPaymentProcessing) {
-
       setIsVerified(true);
       return;
     }
 
-    // Wait for loading to complete before checking cart
-    if (!isLoading) {
-      // Clear any existing timeout
+    // If cart has items, immediately verify!
+    if (cartItems.length > 0) {
+      if (checkTimeoutRef.current) {
+        clearTimeout(checkTimeoutRef.current);
+      }
+      setIsVerified(true);
+      return;
+    }
+
+    // Wait for any ongoing loading/fetching to complete before verifying emptiness
+    const isBusy = isLoading || isPending || isFetching;
+    if (!isBusy) {
       if (checkTimeoutRef.current) {
         clearTimeout(checkTimeoutRef.current);
       }
 
-      // Schedule a delayed check with multiple fallbacks
+      // Schedule a delayed check (1200ms) to ensure guest/user cart resolution is settled
       checkTimeoutRef.current = setTimeout(() => {
-        // Re-check EVERYTHING inside the timeout
-
-        // 1. SessionStorage check (most reliable)
-        if (isPaymentInProgressFromStorage()) {
-
+        if (isPaymentInProgressFromStorage() || pathname?.includes("/checkout/success") || hasRedirected.current) {
           setIsVerified(true);
           return;
         }
 
-        // 2. Pathname check
-        if (pathname?.includes("/checkout/success")) {
-          setIsVerified(true);
-          return;
-        }
-
-        // 3. Already redirected check
-        if (hasRedirected.current) {
-          return;
-        }
-
-        // 4. Check for out-of-stock items
-        // Note: If items are in cart, they're already reserved, so don't block
-        // The backend will validate during order creation if stock changed
-        const hasStockIssues = false; // Trust that cart items are valid
-
-        if (hasStockIssues) {
-          hasRedirected.current = true;
-
-          toast.error(
-            "Some items in your cart are no longer available. Please remove them from your cart.",
-            { duration: 5000 }
-          );
-          router.replace("/collections");
-          return;
-        }
-
-        // 5. Finally, check if cart is empty
+        // Re-check cart items
         if (cartItems.length === 0) {
           hasRedirected.current = true;
-
           toast.error("Your cart is empty. Please add products first.");
           router.replace("/collections");
         } else {
-          // If we pass all checks, show content
           setIsVerified(true);
         }
-      }, 100); // Reduced to 100ms for faster response
+      }, 1200);
     }
 
     return () => {
@@ -135,6 +106,8 @@ export function CheckoutGuard({ children }: { children: ReactNode }) {
     };
   }, [
     isLoading,
+    isPending,
+    isFetching,
     cartItems,
     router,
     pathname,
@@ -143,7 +116,12 @@ export function CheckoutGuard({ children }: { children: ReactNode }) {
   ]);
 
   if (!isVerified) {
-    return null; // Or return a loader/skeleton here
+    return (
+      <div className="min-h-[50vh] flex flex-col items-center justify-center space-y-4">
+        <div className="w-8 h-8 border-4 border-[#0B1F51] border-t-transparent rounded-full animate-spin" />
+        <p className="text-gray-500 text-sm font-medium">Verifying your cart...</p>
+      </div>
+    );
   }
 
   return <>{children}</>;

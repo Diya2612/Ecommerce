@@ -55,7 +55,7 @@ interface AddressFormModalProps {
     isOpen: boolean;
     onClose: () => void;
     address?: Address | null;
-    onSuccess?: () => void;
+    onSuccess?: (newAddress?: any) => void;
 }
 
 // ============================================================================
@@ -224,8 +224,9 @@ export function AddressFormModal({ isOpen, onClose, address, onSuccess }: Addres
 
     const onSubmit = async (data: AddressFormData) => {
         try {
+            let result: any = null;
             if (isEditMode && address) {
-                await updateAddress({
+                result = await updateAddress({
                     id: address.id,
                     data: {
                         name: data.name,
@@ -240,7 +241,7 @@ export function AddressFormModal({ isOpen, onClose, address, onSuccess }: Addres
                     },
                 });
             } else {
-                await createAddress({
+                result = await createAddress({
                     name: data.name,
                     phone: data.phone,
                     addressLine1: data.addressLine1,
@@ -254,10 +255,12 @@ export function AddressFormModal({ isOpen, onClose, address, onSuccess }: Addres
             }
 
             triggerHaptic('success');
-            onSuccess?.();
+            onSuccess?.(result);
             onClose();
-        } catch (error) {
+        } catch (error: any) {
             triggerHaptic('error');
+            console.error('Failed to save address:', error);
+            toast.error(error?.message || "Failed to save address. Please try again.");
         }
     };
 

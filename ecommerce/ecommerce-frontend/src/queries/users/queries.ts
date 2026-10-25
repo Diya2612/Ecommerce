@@ -134,7 +134,7 @@ export async function updateProfile(
  * Get all addresses for current user
  */
 export async function getAddresses(): Promise<UserAddress[]> {
-  const userId = await getCurrentUserId();
+  const userId = (await getCurrentUserId().catch(() => "me")) || "me";
 
   return api<UserAddress[]>(`/users/${userId}/addresses`, {
     auth: true,
@@ -145,11 +145,18 @@ export async function getAddresses(): Promise<UserAddress[]> {
  * Create a new address
  */
 export async function createAddress(data: AddressData): Promise<UserAddress> {
-  const userId = await getCurrentUserId();
+  const userId = (await getCurrentUserId().catch(() => "me")) || "me";
+  const payload = {
+    ...data,
+    address_type: (data.type || "home").toLowerCase(),
+    address_name: data.type === "Other" ? "Other" : "",
+    isDefaultShipping: data.isDefault ?? false,
+    isDefaultBilling: data.isDefault ?? false,
+  };
 
   return api<UserAddress>(`/users/${userId}/addresses`, {
     method: "POST",
-    body: data,
+    body: payload,
     auth: true,
   });
 }
@@ -161,11 +168,16 @@ export async function updateAddress(
   addressId: string,
   data: Partial<AddressData>,
 ): Promise<UserAddress> {
-  const userId = await getCurrentUserId();
+  const userId = (await getCurrentUserId().catch(() => "me")) || "me";
+  const payload = {
+    ...data,
+    ...(data.type ? { address_type: data.type.toLowerCase(), address_name: data.type === "Other" ? "Other" : "" } : {}),
+    ...(data.isDefault !== undefined ? { isDefaultShipping: data.isDefault, isDefaultBilling: data.isDefault } : {}),
+  };
 
   return api<UserAddress>(`/users/${userId}/addresses/${addressId}`, {
     method: "PUT",
-    body: data,
+    body: payload,
     auth: true,
   });
 }
@@ -174,7 +186,7 @@ export async function updateAddress(
  * Delete an address
  */
 export async function deleteAddress(addressId: string): Promise<void> {
-  const userId = await getCurrentUserId();
+  const userId = (await getCurrentUserId().catch(() => "me")) || "me";
 
   await api<void>(`/users/${userId}/addresses/${addressId}`, {
     method: "DELETE",
@@ -186,7 +198,7 @@ export async function deleteAddress(addressId: string): Promise<void> {
  * Set an address as default
  */
 export async function setDefaultAddress(addressId: string): Promise<void> {
-  const userId = await getCurrentUserId();
+  const userId = (await getCurrentUserId().catch(() => "me")) || "me";
 
   await api<{ id: string; isDefault: boolean }>(
     `/users/${userId}/addresses/${addressId}/default`,
