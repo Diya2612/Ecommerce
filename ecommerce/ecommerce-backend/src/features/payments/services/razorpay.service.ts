@@ -82,18 +82,22 @@ class RazorpayServiceClass {
   /** Creates a payment order on Razorpay. */
   async createOrder(options: CreateOrderOptions): Promise<RazorpayOrderResponse> {
     try {
+      const sanitizedReceipt = (options.receipt || '').slice(0, 40);
+      const integerAmount = Math.round(options.amount);
+
       const order = await this.razorpay.orders.create({
-        amount: options.amount,
+        amount: integerAmount,
         currency: options.currency || 'INR',
-        receipt: options.receipt,
+        receipt: sanitizedReceipt,
         notes: options.notes || {},
       });
 
       logger.info('Razorpay order created', { orderId: order.id, receipt: order.receipt });
       return order as RazorpayOrderResponse;
-    } catch (error) {
-      logger.error('Failed to create Razorpay order', { error, receipt: options.receipt });
-      throw new HttpException(500, 'Failed to create payment order.');
+    } catch (error: any) {
+      const errorDetail = error?.error?.description || error?.message || 'Failed to create payment order.';
+      logger.error('Failed to create Razorpay order', { error: errorDetail, receipt: options.receipt });
+      throw new HttpException(500, `Failed to create payment order: ${errorDetail}`);
     }
   }
 
@@ -102,8 +106,8 @@ class RazorpayServiceClass {
     try {
       const order = await this.razorpay.orders.fetch(orderId);
       return order as RazorpayOrderResponse;
-    } catch (error) {
-      logger.error('Failed to fetch Razorpay order', { orderId, error });
+    } catch (error: any) {
+      logger.error('Failed to fetch Razorpay order', { orderId, error: error?.message });
       throw new HttpException(500, 'Failed to fetch payment order.');
     }
   }
@@ -112,8 +116,8 @@ class RazorpayServiceClass {
   async getPayment(paymentId: string): Promise<Record<string, unknown>> {
     try {
       return (await this.razorpay.payments.fetch(paymentId)) as unknown as Record<string, unknown>;
-    } catch (error) {
-      logger.error('Failed to fetch payment', { paymentId, error });
+    } catch (error: any) {
+      logger.error('Failed to fetch payment', { paymentId, error: error?.message });
       throw new HttpException(500, 'Failed to fetch payment details.');
     }
   }
@@ -125,16 +129,16 @@ class RazorpayServiceClass {
   ): Promise<RazorpayRefundResponse> {
     try {
       const refund = await this.razorpay.payments.refund(paymentId, {
-        amount: options?.amount,
+        amount: options?.amount ? Math.round(options.amount) : undefined,
         speed: options?.speed || 'normal',
         notes: options?.notes || {},
-        receipt: options?.receipt,
+        receipt: options?.receipt ? options.receipt.slice(0, 40) : undefined,
       });
 
       logger.info('Razorpay refund created', { refundId: refund.id, status: refund.status });
       return refund as RazorpayRefundResponse;
-    } catch (error) {
-      logger.error('Failed to create refund', { paymentId, error });
+    } catch (error: any) {
+      logger.error('Failed to create refund', { paymentId, error: error?.message });
       throw new HttpException(500, 'Failed to process refund.');
     }
   }
@@ -146,8 +150,8 @@ class RazorpayServiceClass {
         paymentId,
         refundId,
       )) as RazorpayRefundResponse;
-    } catch (error) {
-      logger.error('Failed to fetch refund', { paymentId, refundId, error });
+    } catch (error: any) {
+      logger.error('Failed to fetch refund', { paymentId, refundId, error: error?.message });
       throw new HttpException(500, 'Failed to fetch refund details.');
     }
   }
@@ -163,7 +167,14 @@ class RazorpayServiceClass {
       const message = `${orderId}|${paymentId}`;
       const expected = crypto.createHmac('sha256', this.keySecret).update(message).digest('hex');
 
-      return crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex'));
+      const expectedBuf = Buffer.from(expected.trim().toLowerCase(), 'utf8');
+      const signatureBuf = Buffer.from(signature.trim().toLowerCase(), 'utf8');
+
+      if (expectedBuf.length !== signatureBuf.length) {
+        return false;
+      }
+
+      return crypto.timingSafeEqual(expectedBuf, signatureBuf);
     } catch (error) {
       logger.warn('Payment signature verification error', { orderId, paymentId, error });
       return false;

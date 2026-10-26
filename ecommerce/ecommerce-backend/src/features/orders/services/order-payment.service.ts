@@ -63,7 +63,7 @@ class OrderPaymentService {
         return {
           razorpay_order_id: existingTransaction.razorpay_order_id,
           razorpay_key_id: RazorpayService.getKeyId(),
-          amount: Number(existingOrder.total_amount) * 100,
+          amount: Math.round(Number(existingOrder.total_amount) * 100),
           currency: existingOrder.currency || 'INR',
           order_id: existingOrder.id,
           order_number: existingOrder.order_number,
@@ -73,9 +73,9 @@ class OrderPaymentService {
 
       // Create Razorpay order
       const razorpayOrder = await RazorpayService.createOrder({
-        amount: Number(existingOrder.total_amount) * 100,
+        amount: Math.round(Number(existingOrder.total_amount) * 100),
         currency: existingOrder.currency || 'INR',
-        receipt: existingOrder.order_number,
+        receipt: (existingOrder.order_number || existingOrder.id).slice(0, 40),
         notes: {
           order_id: existingOrder.id,
           order_number: existingOrder.order_number,
@@ -90,7 +90,7 @@ class OrderPaymentService {
         .values({
           order_id: existingOrder.id,
           razorpay_order_id: razorpayOrder.id,
-          amount: (Number(existingOrder.total_amount) * 100).toString(),
+          amount: String(existingOrder.total_amount),
           currency: existingOrder.currency || 'INR',
           status: 'initiated',
           payment_method: paymentMethod,
@@ -191,11 +191,21 @@ class OrderPaymentService {
       throw new HttpException(400, 'Payment verification failed: Invalid signature');
     }
 
-    // Fetch payment details from Razorpay
-    const paymentDetails = await RazorpayService.getPayment(razorpay_payment_id);
+    // Fetch payment details from Razorpay (non-blocking)
+    let paymentMethod = transaction.payment_method;
+    try {
+      const paymentDetails = await RazorpayService.getPayment(razorpay_payment_id);
+      if (paymentDetails && (paymentDetails as any).method) {
+        paymentMethod = (paymentDetails as any).method;
+      }
+    } catch (err: any) {
+      logger.warn('[Admin Verify Payment] Could not fetch Razorpay payment details', {
+        razorpay_payment_id,
+        error: err?.message,
+      });
+    }
 
     // Update transaction
-    const paymentMethod = (paymentDetails as any).method as string | null;
     await db
       .update(paymentTransactions)
       .set({
