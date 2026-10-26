@@ -515,6 +515,7 @@ export function EditProfileDialog({
 
                 {/* Desktop Form */}
                 <form
+                  id="editProfileForm"
                   onSubmit={handleSubmit(onSubmit, onInvalid)}
                   className="flex-1 overflow-y-auto p-8"
                 >
@@ -533,10 +534,7 @@ export function EditProfileDialog({
                   </Button>
                   <Button
                     type="submit"
-                    onClick={() => {
-                      const form = document.querySelector("form");
-                      form?.requestSubmit();
-                    }}
+                    form="editProfileForm"
                     disabled={isUpdating}
                     className="h-12 px-8 bg-[#0B1F51] hover:bg-[#00C4CC] text-white rounded-xl font-semibold transition-all"
                   >

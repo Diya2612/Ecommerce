@@ -236,20 +236,26 @@ export function useRazorpay(): UseRazorpayReturn {
                 throw new Error("Failed to load Razorpay SDK. Please check your internet connection.");
             }
 
+            const paymentObj = paymentData?.data || paymentData;
+            const razorpayKey = paymentObj.razorpay_key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '';
+            if (!razorpayKey) {
+                throw new Error("Razorpay Key ID missing. Please configure NEXT_PUBLIC_RAZORPAY_KEY_ID.");
+            }
+
             setStatus("awaiting_payment");
 
             // 2. Options
             const options: RazorpayOptions = {
-                key: paymentData.razorpay_key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
-                amount: Math.round(paymentData.amount), // Ensure integer (paise)
-                currency: paymentData.currency,
+                key: razorpayKey,
+                amount: Math.round(Number(paymentObj.amount)), // Ensure integer (paise)
+                currency: paymentObj.currency || "INR",
                 name: "Anant Enterprises",
-                description: `Order #${paymentData.order_number}`,
-                order_id: paymentData.razorpay_order_id,
+                description: `Order #${paymentObj.order_number || orderId}`,
+                order_id: paymentObj.razorpay_order_id,
                 prefill: {
-                    name: paymentData.prefill?.name,
-                    email: paymentData.prefill?.email,
-                    contact: paymentData.prefill?.contact,
+                    name: paymentObj.prefill?.name,
+                    email: paymentObj.prefill?.email,
+                    contact: paymentObj.prefill?.contact,
                 },
                 theme: {
                     color: "#0F172A",
@@ -267,7 +273,7 @@ export function useRazorpay(): UseRazorpayReturn {
                     escape: false, // Prevent accidental close
                 },
                 handler: (response) => {
-                    handlePaymentSuccess(response, orderId, paymentData.amount / 100);
+                    handlePaymentSuccess(response, orderId, (Number(paymentObj.amount) || 0) / 100);
                 },
             };
 
