@@ -212,9 +212,11 @@ export function useRazorpay(options?: UseRazorpayOptions): UseRazorpayReturn {
                 throw new Error("Failed to load Razorpay SDK. Please check your internet connection.");
             }
 
-            const razorpayKey = paymentData.razorpay_key_id || (import.meta as any).env?.VITE_RAZORPAY_KEY_ID;
+            const paymentObj = paymentData?.data || paymentData;
+
+            const razorpayKey = paymentObj.razorpay_key_id || (import.meta as any).env?.VITE_RAZORPAY_KEY_ID;
             if (!razorpayKey) {
-                throw new Error("Payment configuration missing. Please contact support.");
+                throw new Error("Payment configuration missing. Please configure VITE_RAZORPAY_KEY_ID.");
             }
 
             setStatus("awaiting_payment");
@@ -222,15 +224,15 @@ export function useRazorpay(options?: UseRazorpayOptions): UseRazorpayReturn {
             // 2. Options
             const options: RazorpayOptions = {
                 key: razorpayKey,
-                amount: Math.round(paymentData.amount), // Ensure integer (paise)
-                currency: paymentData.currency,
+                amount: Math.round(Number(paymentObj.amount)), // Ensure integer (paise)
+                currency: paymentObj.currency || "INR",
                 name: "Anant Enterprises",
-                description: `Order #${paymentData.order_number}`,
-                order_id: paymentData.razorpay_order_id,
+                description: `Order #${paymentObj.order_number || ''}`,
+                order_id: paymentObj.razorpay_order_id,
                 prefill: {
-                    name: paymentData.prefill?.name,
-                    email: paymentData.prefill?.email,
-                    contact: paymentData.prefill?.contact,
+                    name: paymentObj.prefill?.name,
+                    email: paymentObj.prefill?.email,
+                    contact: paymentObj.prefill?.contact,
                 },
                 theme: {
                     color: "#0F172A",
