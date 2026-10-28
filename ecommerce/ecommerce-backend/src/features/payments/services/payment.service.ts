@@ -62,7 +62,10 @@ export class PaymentService {
       if (existingTransaction) {
         const ageMinutes =
           (Date.now() - new Date(existingTransaction.created_at).getTime()) / 60000;
-        if (ageMinutes < 25) {
+        const amountMatches =
+          Math.abs(Number(existingTransaction.amount) - Number(order.total_amount)) < 0.01;
+
+        if (ageMinutes < 25 && amountMatches) {
           logger.info('Reusing existing Razorpay order', { orderId: body.order_id });
           const user = await paymentsQueries.getUserContactInfo(userId);
           return this.buildPaymentResponse(order, existingTransaction.razorpay_order_id, user);
@@ -70,7 +73,7 @@ export class PaymentService {
 
         await paymentsQueries.updatePaymentTransaction(existingTransaction.id, {
           status: 'failed',
-          error_description: 'Payment order expired',
+          error_description: amountMatches ? 'Payment order expired' : 'Amount changed, creating new order',
           updated_at: new Date(),
         });
       }

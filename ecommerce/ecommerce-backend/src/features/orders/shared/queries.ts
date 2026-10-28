@@ -652,6 +652,7 @@ export const findActiveCartByUserId = async (userId: string, tx: Database = db) 
     .where(
       and(eq(carts.user_id, userId), eq(carts.cart_status, 'active'), eq(carts.is_deleted, false)),
     )
+    .orderBy(desc(carts.updated_at))
     .limit(1);
   return cart;
 };
@@ -666,6 +667,7 @@ export const findCartBySessionId = async (sessionId: string, tx: Database = db) 
         eq(carts.is_deleted, false),
       ),
     )
+    .orderBy(desc(carts.updated_at))
     .limit(1);
   return cart;
 };

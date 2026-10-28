@@ -54,7 +54,11 @@ class OrderPaymentService {
         ),
       });
 
-      if (existingTransaction && existingTransaction.razorpay_order_id) {
+      const amountMatches =
+        existingTransaction &&
+        Math.abs(Number(existingTransaction.amount) - Number(existingOrder.total_amount)) < 0.01;
+
+      if (existingTransaction && existingTransaction.razorpay_order_id && amountMatches) {
         logger.info('[Admin Create Payment Order] Returning existing Razorpay order', {
           orderId,
           razorpayOrderId: existingTransaction.razorpay_order_id,
@@ -69,6 +73,13 @@ class OrderPaymentService {
           order_number: existingOrder.order_number,
           transaction: existingTransaction,
         };
+      }
+
+      if (existingTransaction && !amountMatches) {
+        await db
+          .update(paymentTransactions)
+          .set({ status: 'failed', error_description: 'Amount changed, creating new order', updated_at: new Date() })
+          .where(eq(paymentTransactions.id, existingTransaction.id));
       }
 
       // Create Razorpay order

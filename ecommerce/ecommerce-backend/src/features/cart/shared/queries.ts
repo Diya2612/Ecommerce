@@ -28,6 +28,7 @@ export const findActiveCartByUserId = async (
     .where(
       and(eq(carts.user_id, userId), eq(carts.cart_status, 'active'), eq(carts.is_deleted, false)),
     )
+    .orderBy(desc(carts.updated_at))
     .limit(1);
 
   return cart;
@@ -48,6 +49,7 @@ export const findActiveCartBySessionId = async (
         eq(carts.is_deleted, false),
       ),
     )
+    .orderBy(desc(carts.updated_at))
     .limit(1);
 
   return cart;
