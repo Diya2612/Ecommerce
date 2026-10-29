@@ -6,18 +6,13 @@ import Image from 'next/image';
 import {
   Search,
   ShoppingBag,
-  Sparkles,
   Menu,
   X,
-  Building,
-  MapPin,
   Phone,
-  PenTool,
   User,
   LogIn,
   ChevronRight,
   Package,
-  Box,
 } from 'lucide-react';
 import { ECOMMERCE_CATEGORIES } from './EcommerceData';
 
@@ -39,6 +34,21 @@ interface EcommerceHeaderProps {
   onSearch?: (query: string) => void;
 }
 
+/* ── Suvarna brand mark (sun/constellation) ─────────────────────── */
+const SuvarnaIcon = () => (
+  <svg width="36" height="36" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+    <circle cx="24" cy="24" r="6" stroke="#E6B94A" strokeWidth="2" fill="none"/>
+    <circle cx="24" cy="3.6"  r="3.4" fill="#E6B94A"/>
+    <circle cx="24" cy="44.4" r="3.4" fill="#E6B94A"/>
+    <circle cx="41.7" cy="13.8" r="3.4" fill="#E6B94A"/>
+    <circle cx="41.7" cy="34.2" r="3.4" fill="#E6B94A"/>
+    <circle cx="6.3"  cy="34.2" r="3.4" fill="#E6B94A"/>
+    <circle cx="6.3"  cy="13.8" r="3.4" fill="#E6B94A"/>
+    <path d="M24 18V7M24 30v11M29.2 21l9.5-5.5M29.2 27l9.5 5.5M18.8 27l-9.5 5.5M18.8 21l-9.5-5.5"
+          stroke="#E6B94A" strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);
+
 export const EcommerceHeader: React.FC<EcommerceHeaderProps> = ({
   cartCount = 0,
   onOpenCart,
@@ -53,7 +63,7 @@ export const EcommerceHeader: React.FC<EcommerceHeaderProps> = ({
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ── Live search ──────────────────────────────────────────────────────────
+  /* live search */
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (!searchQuery || searchQuery.trim().length < 2) {
@@ -61,7 +71,6 @@ export const EcommerceHeader: React.FC<EcommerceHeaderProps> = ({
       setShowDropdown(false);
       return;
     }
-
     debounceRef.current = setTimeout(async () => {
       setIsSearching(true);
       try {
@@ -80,19 +89,14 @@ export const EcommerceHeader: React.FC<EcommerceHeaderProps> = ({
           setShowDropdown(true);
         }
       } catch {
-        // Backend unreachable — no dropdown
         setShowDropdown(false);
       } finally {
         setIsSearching(false);
       }
     }, 320);
-
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [searchQuery]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
@@ -107,102 +111,93 @@ export const EcommerceHeader: React.FC<EcommerceHeaderProps> = ({
     e.preventDefault();
     setShowDropdown(false);
     if (onSearch) onSearch(searchQuery);
-    // Scroll to product grid and filter
     const gridEl = document.getElementById('trending-products');
     if (gridEl) gridEl.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-xs">
-
-      {/* 1. Top Utility Bar */}
-      <div className="bg-purple-50/70 text-slate-700 text-[11px] font-medium py-1 px-4 border-b border-purple-100">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              Same-Day Dispatch &amp; 4-Hour Delivery in Metros
-            </span>
-            <span className="hidden lg:inline text-slate-300">|</span>
-            <a
-              href="tel:08069006900"
-              className="hidden lg:flex items-center gap-1 text-slate-600 hover:text-purple-700 transition-colors"
-            >
-              <Phone className="w-3 h-3 text-purple-600" />
-              <span>Support: 080-6900 6900 (9am – 9pm)</span>
-            </a>
-          </div>
-
-          <div className="flex items-center gap-4 text-xs font-semibold">
-            <a
-              href="#stores-section"
-              className="hidden sm:flex items-center gap-1 text-slate-600 hover:text-purple-700 transition-colors"
-            >
-              <MapPin className="w-3.5 h-3.5 text-rose-500" />
-              <span>30+ Stores &amp; 2h Pickup</span>
-            </a>
-            <a
-              href="#design-services"
-              className="hidden md:flex items-center gap-1 text-amber-700 hover:text-amber-800 transition-colors"
-            >
-              <PenTool className="w-3.5 h-3.5" />
-              <span>Hire a Designer (₹499)</span>
-            </a>
-            <button
-              onClick={onOpenBulkModal}
-              className="flex items-center gap-1 text-purple-700 hover:text-purple-900 transition-colors font-bold"
-            >
-              <Building className="w-3.5 h-3.5 text-purple-600" />
-              <span>Order in Bulk (B2B)</span>
-            </button>
-          </div>
-        </div>
+    <header
+      style={{
+        background: 'rgba(10,20,48,.96)',
+        borderBottom: '1px solid rgba(243,235,218,.12)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+      }}
+      className="sticky top-0 z-50"
+    >
+      {/* ── Top utility strip ── */}
+      <div
+        style={{ background: 'var(--sv-gold)', color: 'var(--sv-on-gold)' }}
+        className="text-center text-xs font-semibold py-1.5 px-4"
+      >
+        Store preview — Custom photo prints, albums, video invites &amp; keepsake boxes
       </div>
 
-      {/* 2. Main Header Row */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 sm:h-16 gap-4">
+      {/* ── Main header row ── */}
+      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="flex items-center gap-4 py-3 flex-wrap">
 
-          {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 flex items-center justify-center text-white shadow-md shadow-purple-600/30 group-hover:rotate-12 transition-transform duration-300">
-              <Box className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-1">
-                PRINTO<span className="text-purple-600">COMMERCE</span>
-              </span>
-              <span className="text-[10px] uppercase font-extrabold tracking-widest text-slate-500 block -mt-1">
-                India&apos;s Premium 3D Store
-              </span>
-            </div>
+          {/* Brand */}
+          <Link href="/" className="flex items-center gap-2.5 shrink-0 no-underline group" aria-label="Suvarna Custom, home">
+            <SuvarnaIcon />
+            <span
+              style={{ font: '600 1.55rem var(--sv-round)', color: 'var(--sv-gold)' }}
+              className="group-hover:opacity-90 transition-opacity"
+            >
+              Suvarna
+            </span>
           </Link>
 
-          {/* Desktop Search Bar with live dropdown */}
-          <div ref={searchRef} className="hidden md:flex flex-1 max-w-lg relative">
+          {/* Desktop Search */}
+          <div ref={searchRef} className="hidden md:flex flex-1 max-w-[520px] mx-auto relative" style={{ order: 0 }}>
             <form onSubmit={handleSearchSubmit} className="flex w-full items-center relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+              <Search className="w-4 h-4 absolute left-3.5 pointer-events-none" style={{ color: 'var(--sv-muted)' }} />
               <input
-                type="text"
+                type="search"
+                id="q"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
-                placeholder="Search visiting cards, custom boxes, tumblers…"
-                className="w-full pl-10 pr-24 py-2 rounded-2xl bg-slate-100 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                placeholder="Search prints, albums, invites, gifts"
+                aria-label="Search products"
+                style={{
+                  width: '100%', paddingLeft: '2.6rem', paddingRight: '6rem',
+                  paddingBlock: '.65rem',
+                  background: 'var(--sv-bg-2)',
+                  border: '1px solid var(--sv-line-soft)',
+                  borderRadius: '999px',
+                  color: 'var(--sv-ink)',
+                  font: '400 .95rem var(--sv-sans)',
+                  outline: 'none',
+                }}
+                className="focus:ring-2 focus:ring-[--sv-gold-2] focus:border-[--sv-gold] transition-all"
               />
               <button
                 type="submit"
-                className="absolute right-1 top-1 bottom-1 px-3.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-colors shadow-xs"
+                style={{
+                  position: 'absolute', right: '4px', top: '4px', bottom: '4px',
+                  paddingInline: '1rem', borderRadius: '999px',
+                  background: 'var(--sv-gold)', color: 'var(--sv-on-gold)',
+                  font: '600 .88rem var(--sv-sans)', border: 'none', cursor: 'pointer',
+                }}
               >
                 {isSearching ? '…' : 'Search'}
               </button>
             </form>
 
-            {/* Live Search Dropdown */}
+            {/* Live dropdown */}
             {showDropdown && searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden">
+              <div
+                style={{
+                  position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0,
+                  background: 'var(--sv-bg-2)',
+                  border: '1px solid var(--sv-line)',
+                  borderRadius: '16px', zIndex: 50, overflow: 'hidden',
+                  boxShadow: '0 16px 40px rgba(0,0,0,.5)',
+                }}
+              >
                 <div className="p-2">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 py-1">
+                  <p style={{ color: 'var(--sv-muted)', fontSize: '.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em' }} className="px-2 py-1">
                     Search Results
                   </p>
                   {searchResults.map((result) => (
@@ -210,122 +205,166 @@ export const EcommerceHeader: React.FC<EcommerceHeaderProps> = ({
                       key={result.id}
                       href={result.slug ? `/product/${result.slug}` : `/product/${result.id}`}
                       onClick={() => setShowDropdown(false)}
-                      className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-purple-50 transition-colors group/item"
+                      style={{ color: 'var(--sv-ink)', textDecoration: 'none' }}
+                      className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-[--sv-bg-3] transition-colors group/item"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
+                      <div style={{ width: 40, height: 40, borderRadius: 8, background: 'var(--sv-bg-3)', border: '1px solid var(--sv-line-soft)' }} className="shrink-0 overflow-hidden flex items-center justify-center">
                         {result.image ? (
-                          <Image
-                            src={result.image}
-                            alt={result.name}
-                            width={40}
-                            height={40}
-                            className="object-contain"
-                            unoptimized
-                          />
+                          <Image src={result.image} alt={result.name} width={40} height={40} className="object-contain" unoptimized />
                         ) : (
-                          <Package className="w-5 h-5 text-slate-300" />
+                          <Package className="w-4 h-4" style={{ color: 'var(--sv-muted)' }} />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-slate-800 truncate group-hover/item:text-purple-700">
-                          {result.name}
-                        </p>
+                        <p style={{ fontSize: '.88rem', fontWeight: 600 }} className="truncate group-hover/item:text-[--sv-gold-2]">{result.name}</p>
                         {result.price && (
-                          <p className="text-[11px] text-slate-500 font-medium">
-                            ₹{result.price.toLocaleString('en-IN')}
-                          </p>
+                          <p style={{ fontSize: '.78rem', color: 'var(--sv-gold-2)', fontWeight: 600 }}>₹{result.price.toLocaleString('en-IN')}</p>
                         )}
                       </div>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover/item:text-purple-500 shrink-0" />
+                      <ChevronRight className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--sv-muted)' }} />
                     </Link>
                   ))}
                 </div>
-                <div className="border-t border-slate-100 px-4 py-2">
-                  <button
-                    onClick={handleSearchSubmit}
-                    className="text-xs font-bold text-purple-600 hover:text-purple-800 flex items-center gap-1"
-                  >
+                <div style={{ borderTop: '1px solid var(--sv-line-soft)', padding: '.5rem 1rem' }}>
+                  <button onClick={handleSearchSubmit} style={{ color: 'var(--sv-gold-2)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '.4rem' }}>
                     <Search className="w-3 h-3" />
-                    See all results for &quot;{searchQuery}&quot;
+                    See all results for &ldquo;{searchQuery}&rdquo;
                   </button>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Right Action Icons */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
+          {/* Right icons */}
+          <div className="flex items-center gap-2 ml-auto">
+            {/* Phone */}
+            <a
+              href="tel:08069006900"
+              style={{ color: 'var(--sv-muted)', textDecoration: 'none', fontSize: '.82rem', display: 'flex', alignItems: 'center', gap: '.35rem' }}
+              className="hidden xl:flex hover:text-[--sv-gold] transition-colors"
+            >
+              <Phone className="w-3.5 h-3.5" />
+              080-6900 6900
+            </a>
 
-            {/* Auth Button */}
+            {/* Bulk order */}
+            <button
+              onClick={onOpenBulkModal}
+              style={{
+                background: 'transparent',
+                border: '1.5px solid var(--sv-line)',
+                borderRadius: '999px',
+                padding: '.45rem .9rem',
+                color: 'var(--sv-gold)',
+                font: '600 .82rem var(--sv-sans)',
+                cursor: 'pointer',
+                transition: 'border-color .2s, background .2s',
+              }}
+              className="hidden sm:block hover:border-[--sv-gold] hover:bg-[rgba(230,185,74,.08)]"
+            >
+              Bulk / B2B
+            </button>
+
+            {/* Login */}
             <Link
               href="/login"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-purple-700 text-xs font-bold transition-all hover:border-purple-300 hover:shadow-sm"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '.4rem',
+                padding: '.45rem .9rem', borderRadius: '999px',
+                border: '1.5px solid var(--sv-line)',
+                color: 'var(--sv-ink)', textDecoration: 'none',
+                font: '600 .82rem var(--sv-sans)',
+                transition: 'border-color .2s',
+              }}
+              className="hidden sm:flex hover:border-[--sv-gold] hover:text-[--sv-gold]"
             >
-              <LogIn className="w-4 h-4" />
-              <span className="hidden lg:inline">Login</span>
+              <LogIn className="w-3.5 h-3.5" />
+              Login
             </Link>
 
-            {/* Account (if user logged in – shows as User icon) */}
+            {/* Account */}
             <Link
               href="/profile"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-purple-700 text-xs font-bold transition-all hover:border-purple-300"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '.4rem',
+                padding: '.45rem .9rem', borderRadius: '999px',
+                border: '1.5px solid var(--sv-line)',
+                color: 'var(--sv-ink)', textDecoration: 'none',
+                font: '600 .82rem var(--sv-sans)',
+                transition: 'border-color .2s',
+              }}
+              className="hidden sm:flex hover:border-[--sv-gold] hover:text-[--sv-gold]"
               title="My Account"
             >
-              <User className="w-4 h-4" />
+              <User className="w-3.5 h-3.5" />
               <span className="hidden lg:inline">Account</span>
             </Link>
 
-            {/* Cart Pill */}
+            {/* Cart */}
             <button
               id="cart-button"
               onClick={onOpenCart}
-              aria-label="Shopping Cart"
-              className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-purple-600/20 transition-all hover:scale-105"
+              aria-label="Open cart"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '.5rem',
+                padding: '.5rem .9rem', borderRadius: '999px',
+                border: '1.5px solid var(--sv-line)',
+                color: 'var(--sv-ink)',
+                font: '500 .92rem var(--sv-sans)',
+                background: 'transparent',
+                cursor: 'pointer',
+                transition: 'border-color .2s',
+              }}
+              className="hover:border-[--sv-gold]"
             >
-              <ShoppingBag className="w-4 h-4" />
+              <ShoppingBag className="w-4 h-4" style={{ color: 'var(--sv-gold)' }} />
               <span className="hidden sm:inline">Cart</span>
-              <span className="w-5 h-5 rounded-full bg-white text-purple-700 text-xs flex items-center justify-center font-black">
+              <span
+                style={{
+                  background: 'var(--sv-gold)', color: 'var(--sv-on-gold)',
+                  borderRadius: '999px', minWidth: '1.35rem', height: '1.35rem',
+                  display: 'grid', placeItems: 'center',
+                  fontSize: '.76rem', fontWeight: 800, paddingInline: '.25rem',
+                }}
+              >
                 {cartCount}
               </span>
             </button>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile menu toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--sv-ink)', padding: '.4rem' }}
+              className="md:hidden"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
-        {/* 3. Category Ribbon Bar (Desktop) */}
-        <div className="hidden lg:flex items-center justify-between border-t border-slate-100 py-2 text-xs font-semibold text-slate-700 overflow-x-auto scrollbar-none">
-          {ECOMMERCE_CATEGORIES.map((cat) => (
-            <a
-              key={cat.id}
-              href="#trending-products"
-              className="hover:text-purple-600 whitespace-nowrap transition-colors flex items-center gap-1 px-2"
-            >
-              <span>{cat.name}</span>
-            </a>
-          ))}
-        </div>
-
-        {/* Mobile Search */}
+        {/* Mobile search */}
         <div className="md:hidden pb-3">
           <form onSubmit={handleSearchSubmit} className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--sv-muted)' }} />
             <input
-              type="text"
+              type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products..."
-              className="w-full pl-10 pr-20 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-900"
+              style={{
+                width: '100%', paddingLeft: '2.6rem', paddingRight: '5rem', paddingBlock: '.65rem',
+                background: 'var(--sv-bg-2)', border: '1px solid var(--sv-line-soft)',
+                borderRadius: '999px', color: 'var(--sv-ink)', font: '400 .88rem var(--sv-sans)', outline: 'none',
+              }}
             />
             <button
               type="submit"
-              className="absolute right-1 top-1 bottom-1 px-3 rounded-lg bg-purple-600 text-white text-xs font-semibold"
+              style={{
+                position: 'absolute', right: '4px', top: '4px', bottom: '4px',
+                paddingInline: '.9rem', borderRadius: '999px',
+                background: 'var(--sv-gold)', color: 'var(--sv-on-gold)',
+                font: '600 .82rem var(--sv-sans)', border: 'none', cursor: 'pointer',
+              }}
             >
               Go
             </button>
@@ -333,80 +372,91 @@ export const EcommerceHeader: React.FC<EcommerceHeaderProps> = ({
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* ── Category nav bar ── */}
+      <nav style={{ borderTop: '1px solid var(--sv-line-soft)' }} aria-label="Categories">
+        <div className="max-w-[1180px] mx-auto px-4 sm:px-6 lg:px-10">
+          <div className="flex gap-6 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+            {ECOMMERCE_CATEGORIES.map((cat) => (
+              <a
+                key={cat.id}
+                href="#trending-products"
+                style={{
+                  whiteSpace: 'nowrap', textDecoration: 'none',
+                  color: 'var(--sv-muted)', fontSize: '.9rem',
+                  paddingBlock: '.6rem',
+                  borderBottom: '2px solid transparent',
+                  display: 'inline-block',
+                  transition: 'color .2s, border-color .2s',
+                }}
+                className="hover:text-[--sv-gold-2] hover:border-b-[--sv-gold]"
+              >
+                {cat.name}
+              </a>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      {/* ── Mobile drawer ── */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white p-4 space-y-2">
-          {/* Auth row */}
+        <div
+          style={{ background: 'var(--sv-bg-2)', borderTop: '1px solid var(--sv-line-soft)', padding: '1rem' }}
+          className="md:hidden space-y-2"
+        >
           <div className="flex gap-2 mb-3">
             <Link
               href="/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold"
+              style={{
+                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '.5rem',
+                padding: '.65rem', borderRadius: '999px',
+                border: '1.5px solid var(--sv-line)', color: 'var(--sv-ink)',
+                textDecoration: 'none', font: '600 .88rem var(--sv-sans)',
+              }}
             >
-              <LogIn className="w-4 h-4" />
-              Login
+              <LogIn className="w-4 h-4" /> Login
             </Link>
             <Link
               href="/register"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-purple-600 text-white text-xs font-bold"
+              style={{
+                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '.5rem',
+                padding: '.65rem', borderRadius: '999px',
+                background: 'var(--sv-gold)', color: 'var(--sv-on-gold)',
+                textDecoration: 'none', font: '600 .88rem var(--sv-sans)', border: 'none',
+              }}
             >
-              <User className="w-4 h-4" />
-              Register
+              <User className="w-4 h-4" /> Register
             </Link>
           </div>
-
           <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              if (onOpenBulkModal) onOpenBulkModal();
+            onClick={() => { setMobileMenuOpen(false); if (onOpenBulkModal) onOpenBulkModal(); }}
+            style={{
+              width: '100%', padding: '.65rem', borderRadius: '999px',
+              background: 'rgba(230,185,74,.12)', border: '1.5px solid var(--sv-gold)',
+              color: 'var(--sv-gold)', font: '600 .9rem var(--sv-sans)', cursor: 'pointer',
             }}
-            className="w-full py-2.5 px-3 rounded-xl bg-indigo-600 text-white text-xs font-bold flex items-center justify-center gap-2 mb-2"
           >
-            <Building className="w-4 h-4" />
-            <span>Order in Bulk / Enterprise Quote</span>
+            Order in Bulk / Enterprise Quote
           </button>
-
-          <a
-            href="#3d-customizer"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2 p-2.5 rounded-xl text-sm font-semibold text-purple-600"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>3D Live Product Customizer</span>
-          </a>
-
-          <a
-            href="#design-services"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2 p-2.5 rounded-xl text-sm font-semibold text-amber-600"
-          >
-            <PenTool className="w-4 h-4" />
-            <span>Hire a Designer (₹499)</span>
-          </a>
-
-          <a
-            href="#stores-section"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2 p-2.5 rounded-xl text-sm font-semibold text-slate-700"
-          >
-            <MapPin className="w-4 h-4" />
-            <span>30+ Stores &amp; 2-Hour Pickup</span>
-          </a>
-
-          <div className="pt-2 border-t border-slate-200">
-            <div className="text-[11px] uppercase font-bold text-slate-400 px-2 mb-1">
+          <div style={{ borderTop: '1px solid var(--sv-line-soft)', paddingTop: '.8rem', marginTop: '.8rem' }}>
+            <p style={{ fontSize: '.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--sv-muted)', marginBottom: '.5rem', paddingInline: '.5rem' }}>
               Shop Categories
-            </div>
+            </p>
             {ECOMMERCE_CATEGORIES.map((cat) => (
               <a
                 key={cat.id}
                 href="#trending-products"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-purple-50"
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '.5rem', borderRadius: '10px',
+                  color: 'var(--sv-ink)', textDecoration: 'none', fontSize: '.88rem', fontWeight: 500,
+                }}
+                className="hover:bg-[rgba(230,185,74,.08)] hover:text-[--sv-gold]"
               >
                 <span>{cat.name}</span>
-                <span className="text-[10px] text-slate-400">{cat.itemCount}</span>
+                <span style={{ fontSize: '.75rem', color: 'var(--sv-muted)' }}>{cat.itemCount}</span>
               </a>
             ))}
           </div>

@@ -5,6 +5,7 @@ import React, { useRef, useState, useCallback } from 'react';
 interface ThreeDCardProps {
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   maxTilt?: number;
   glareEffect?: boolean;
   scale?: number;
@@ -14,6 +15,7 @@ interface ThreeDCardProps {
 export const ThreeDCard: React.FC<ThreeDCardProps> = ({
   children,
   className = '',
+  style,
   maxTilt = 12,
   glareEffect = true,
   scale = 1.02,
@@ -78,9 +80,10 @@ export const ThreeDCard: React.FC<ThreeDCardProps> = ({
           transition: isHovered
             ? 'transform 0.1s ease-out'
             : 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
+          ...style,
         }}
         className={`relative transition-shadow duration-300 ${
-          isHovered ? 'shadow-2xl shadow-purple-900/20' : 'shadow-md'
+          isHovered ? 'shadow-2xl shadow-black/40' : ''
         } ${className}`}
       >
         {children}

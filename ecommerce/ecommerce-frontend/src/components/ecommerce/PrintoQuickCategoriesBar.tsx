@@ -2,18 +2,6 @@
 
 import React from 'react';
 import Image from 'next/image';
-import {
-  Sparkles,
-  Zap,
-  Truck,
-  RotateCcw,
-  ShieldCheck,
-  Award,
-  ChevronRight,
-  TrendingUp,
-  Percent,
-} from 'lucide-react';
-import { ThreeDCard } from './ThreeDCard';
 
 interface QuickLinkItem {
   id: string;
@@ -21,6 +9,7 @@ interface QuickLinkItem {
   tag: string;
   image: string;
   link: string;
+  emoji: string;
 }
 
 const QUICK_CATEGORY_ICONS: QuickLinkItem[] = [
@@ -30,6 +19,7 @@ const QUICK_CATEGORY_ICONS: QuickLinkItem[] = [
     tag: 'From ₹1.99',
     image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=300&q=80',
     link: '#trending-products',
+    emoji: '🪪',
   },
   {
     id: 'apparel',
@@ -37,6 +27,7 @@ const QUICK_CATEGORY_ICONS: QuickLinkItem[] = [
     tag: 'From ₹349',
     image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=300&q=80',
     link: '#trending-products',
+    emoji: '👕',
   },
   {
     id: 'boxes',
@@ -44,6 +35,7 @@ const QUICK_CATEGORY_ICONS: QuickLinkItem[] = [
     tag: 'From ₹29',
     image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=300&q=80',
     link: '#trending-products',
+    emoji: '📦',
   },
   {
     id: 'drink',
@@ -51,6 +43,7 @@ const QUICK_CATEGORY_ICONS: QuickLinkItem[] = [
     tag: 'From ₹199',
     image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=300&q=80',
     link: '#trending-products',
+    emoji: '☕',
   },
   {
     id: 'signs',
@@ -58,6 +51,7 @@ const QUICK_CATEGORY_ICONS: QuickLinkItem[] = [
     tag: 'Ready in 24h',
     image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=300&q=80',
     link: '#trending-products',
+    emoji: '🪧',
   },
   {
     id: 'photo',
@@ -65,6 +59,7 @@ const QUICK_CATEGORY_ICONS: QuickLinkItem[] = [
     tag: '44% Off',
     image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=300&q=80',
     link: '#trending-products',
+    emoji: '🖼️',
   },
   {
     id: 'stickers',
@@ -72,6 +67,7 @@ const QUICK_CATEGORY_ICONS: QuickLinkItem[] = [
     tag: 'From ₹0.85',
     image: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=300&q=80',
     link: '#trending-products',
+    emoji: '🏷️',
   },
   {
     id: 'corporate',
@@ -79,70 +75,125 @@ const QUICK_CATEGORY_ICONS: QuickLinkItem[] = [
     tag: 'GST Billing',
     image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=300&q=80',
     link: '#trending-products',
-  },
-];
-
-interface PromoBannerItem {
-  id: string;
-  title: string;
-  subtitle: string;
-  badge: string;
-  bgGradient: string;
-  image: string;
-  ctaText: string;
-  link: string;
-}
-
-const PROMO_BANNERS: PromoBannerItem[] = [
-  {
-    id: 'banner-1',
-    title: 'Festive & Corporate Gifting 2026',
-    subtitle: 'Premium laser tumblers, branded welcome kits, and luxury executive swag with instant GST invoices.',
-    badge: 'UP TO 45% OFF BUNDLES',
-    bgGradient: 'from-purple-950 via-indigo-900 to-slate-900',
-    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80',
-    ctaText: 'Explore Gift Kits',
-    link: '#industry-packs',
-  },
-  {
-    id: 'banner-2',
-    title: 'Same-Day Superfast Printing Hub',
-    subtitle: 'Need visiting cards, rollup standees, or menus today? Pick up in 2 hours or get 4-hour metro delivery.',
-    badge: 'SAME DAY DELIVERY IN METROS',
-    bgGradient: 'from-amber-950 via-slate-900 to-purple-950',
-    image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
-    ctaText: 'Check City Stores',
-    link: '#stores-section',
+    emoji: '🎁',
   },
 ];
 
 export const PrintoQuickCategoriesBar: React.FC = () => {
   return (
-    <section className="py-5 bg-white border-b border-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Horizontal Quick-Icon Scroll / Grid */}
-        <div className="grid grid-cols-4 sm:grid-cols-8 gap-3 sm:gap-4">
+    <section
+      style={{
+        paddingBlock: 'clamp(40px, 5vw, 64px)',
+        background: 'var(--sv-bg)',
+      }}
+    >
+      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 lg:px-10">
+
+        {/* Section heading */}
+        <div
+          style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
+            marginBottom: '1.6rem', flexWrap: 'wrap', gap: '1rem',
+          }}
+        >
+          <div>
+            <h2
+              style={{
+                fontFamily: 'var(--sv-serif)', fontWeight: 600,
+                fontSize: 'clamp(1.8rem, 3.8vw, 2.6rem)',
+                color: 'var(--sv-ink)', lineHeight: 1.12, margin: 0,
+              }}
+            >
+              Browse Categories
+            </h2>
+            <p style={{ color: 'var(--sv-muted)', marginTop: '.4rem', fontSize: '.95rem' }}>
+              From keepsakes to bulk corporate swag — find it all here.
+            </p>
+          </div>
+          <a
+            href="#trending-products"
+            style={{
+              color: 'var(--sv-gold)', textDecoration: 'none',
+              fontWeight: 600, fontSize: '.92rem',
+              transition: 'color .2s',
+            }}
+            className="hover:text-[--sv-gold-2]"
+          >
+            View all →
+          </a>
+        </div>
+
+        {/* Grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '1rem',
+          }}
+          className="sm:grid-cols-4"
+        >
           {QUICK_CATEGORY_ICONS.map((cat) => (
             <a
               key={cat.id}
               href={cat.link}
-              className="group flex flex-col items-center text-center p-2.5 rounded-2xl bg-white border border-slate-100 hover:border-purple-300 hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+              style={{
+                display: 'grid', gap: '.5rem', alignContent: 'start',
+                textDecoration: 'none',
+                padding: '1.3rem 1.2rem',
+                border: '1px solid var(--sv-line-soft)',
+                borderRadius: '16px',
+                background: 'var(--sv-bg-2)',
+                transition: 'border-color .2s, background .2s, transform .2s',
+              }}
+              className="group hover:border-[--sv-gold] hover:bg-[--sv-bg-3] hover:-translate-y-0.5"
             >
-              <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-slate-50 mb-2 p-1 border border-slate-100 group-hover:scale-105 transition-transform duration-300">
-                <Image
-                  src={cat.image}
-                  alt={cat.name}
-                  fill
-                  sizes="80px"
-                  className="object-cover rounded-lg"
-                />
+              {/* Image tile */}
+              <div
+                style={{
+                  width: '100%', aspectRatio: '1',
+                  borderRadius: '10px', overflow: 'hidden',
+                  position: 'relative',
+                  background: 'var(--sv-bg-3)',
+                  border: '1px solid var(--sv-line-soft)',
+                  marginBottom: '.4rem',
+                  fontSize: 'clamp(2rem, 6vw, 3rem)',
+                  display: 'grid', placeItems: 'center',
+                }}
+              >
+                {cat.image ? (
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    sizes="200px"
+                    className="object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                  />
+                ) : (
+                  <span className="relative z-10">{cat.emoji}</span>
+                )}
+                {/* Emoji overlay */}
+                <span
+                  style={{
+                    position: 'absolute', fontSize: 'clamp(1.8rem, 5vw, 2.6rem)',
+                    zIndex: 1, filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.4))',
+                  }}
+                >
+                  {cat.emoji}
+                </span>
               </div>
-              <span className="text-xs font-bold text-slate-800 group-hover:text-purple-600 transition-colors line-clamp-1">
+
+              <h3
+                style={{
+                  fontFamily: 'var(--sv-sans)', fontWeight: 600,
+                  fontSize: '1.1rem', color: 'var(--sv-ink)',
+                  margin: 0, lineHeight: 1.3,
+                }}
+              >
                 {cat.name}
-              </span>
-              <span className="text-[10px] font-semibold text-purple-600 mt-0.5">
+              </h3>
+              <p style={{ fontSize: '.85rem', color: 'var(--sv-muted)', margin: 0, lineHeight: 1.4 }}>
                 {cat.tag}
-              </span>
+              </p>
             </a>
           ))}
         </div>

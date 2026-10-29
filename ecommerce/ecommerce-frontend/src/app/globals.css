@@ -1,6 +1,50 @@
 @import 'tailwindcss';
 @import '../styles/mobile-profile.css';
 
+/* ── Suvarna Custom Design Tokens ─────────────────────────────────────────── */
+:root {
+  --sv-bg:      #0A1430;
+  --sv-bg-2:    #0F1D44;
+  --sv-bg-3:    #16295B;
+  --sv-ink:     #F3EBDA;
+  --sv-muted:   #AEB7D0;
+  --sv-gold:    #E6B94A;
+  --sv-gold-2:  #F6DB8E;
+  --sv-on-gold: #0A1430;
+  --sv-line:    rgba(230,185,74,.3);
+  --sv-line-soft: rgba(243,235,218,.12);
+  --sv-serif: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --sv-sans:  "Hanken Grotesk", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --sv-round: "Quicksand", "Hanken Grotesk", system-ui, sans-serif;
+}
+
+/* Suvarna-themed button */
+.sv-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  font: 600 1rem var(--sv-sans); text-decoration: none; cursor: pointer;
+  padding: .8rem 1.6rem; border-radius: 999px;
+  border: 1.5px solid var(--sv-gold); background: var(--sv-gold); color: var(--sv-on-gold);
+  transition: background .2s, color .2s, transform .15s;
+}
+.sv-btn:hover { background: var(--sv-gold-2); border-color: var(--sv-gold-2); }
+.sv-btn:active { transform: translateY(1px); }
+.sv-btn.ghost { background: transparent; color: var(--sv-gold); }
+.sv-btn.ghost:hover { background: rgba(230,185,74,.12); color: var(--sv-gold-2); border-color: var(--sv-gold-2); }
+
+/* Suvarna product tile */
+.sv-tile {
+  aspect-ratio: 1; border-radius: 14px; display: grid; place-items: center;
+  position: relative; overflow: hidden;
+  background: radial-gradient(110% 90% at 50% 0%, var(--sv-bg-3), var(--sv-bg-2) 70%);
+  border: 1px solid var(--sv-line-soft); color: var(--sv-gold);
+  transition: border-color .2s, transform .25s;
+}
+.sv-tile::after {
+  content: ""; position: absolute; inset: 8px;
+  border: 1px solid var(--sv-line); border-radius: 9px; pointer-events: none;
+}
+.sv-card:hover .sv-tile { border-color: var(--sv-gold); transform: translateY(-2px); }
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {

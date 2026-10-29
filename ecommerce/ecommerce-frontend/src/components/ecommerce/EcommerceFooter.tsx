@@ -2,141 +2,177 @@
 
 import React from 'react';
 import Link from 'next/link';
-import {
-  Box,
-  Truck,
-  RotateCcw,
-  ShieldCheck,
-  Headphones,
-  Heart,
-  CreditCard,
-} from 'lucide-react';
+import { Instagram, Facebook, Youtube, Twitter, Linkedin } from 'lucide-react';
 import { ECOMMERCE_CATEGORIES } from './EcommerceData';
+
+/* ── Suvarna brand mark ─────────────────────────────────────── */
+const SuvarnaIcon = () => (
+  <svg width="30" height="30" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+    <circle cx="24" cy="24" r="6" stroke="#E6B94A" strokeWidth="2" fill="none"/>
+    <circle cx="24" cy="3.6"  r="3.4" fill="#E6B94A"/>
+    <circle cx="24" cy="44.4" r="3.4" fill="#E6B94A"/>
+    <circle cx="41.7" cy="13.8" r="3.4" fill="#E6B94A"/>
+    <circle cx="41.7" cy="34.2" r="3.4" fill="#E6B94A"/>
+    <circle cx="6.3"  cy="34.2" r="3.4" fill="#E6B94A"/>
+    <circle cx="6.3"  cy="13.8" r="3.4" fill="#E6B94A"/>
+    <path d="M24 18V7M24 30v11M29.2 21l9.5-5.5M29.2 27l9.5 5.5M18.8 27l-9.5 5.5M18.8 21l-9.5-5.5"
+          stroke="#E6B94A" strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);
+
+const SOCIAL = [
+  { name: 'Instagram', Icon: Instagram, url: 'https://www.instagram.com/' },
+  { name: 'Facebook',  Icon: Facebook,  url: '' },
+  { name: 'YouTube',   Icon: Youtube,   url: '' },
+  { name: 'Twitter/X', Icon: Twitter,   url: '' },
+  { name: 'LinkedIn',  Icon: Linkedin,  url: '' },
+];
 
 export const EcommerceFooter: React.FC = () => {
   return (
-    <footer className="bg-slate-50 text-slate-800 border-t border-slate-200 pt-10 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Value Perks 4-Column Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pb-8 mb-8 border-b border-slate-200">
-          <div className="flex items-start gap-3.5 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
-            <div className="p-2.5 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 flex-shrink-0">
-              <Truck className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm text-slate-900">Free Express Shipping</h4>
-              <p className="text-xs text-slate-500 mt-0.5">Orders over ₹999 get free expedited delivery</p>
-            </div>
-          </div>
+    <footer
+      style={{
+        background: '#070f27',
+        borderTop: '1px solid var(--sv-line-soft)',
+        paddingBlock: '48px 40px',
+        fontFamily: 'var(--sv-sans)',
+      }}
+    >
+      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 lg:px-10">
 
-          <div className="flex items-start gap-3.5 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
-            <div className="p-2.5 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 flex-shrink-0">
-              <RotateCcw className="w-5 h-5" />
+        {/* Trust badges row */}
+        <div
+          style={{
+            display: 'grid', gap: '1.5rem',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            marginBottom: '3rem',
+            paddingBottom: '2rem',
+            borderBottom: '1px solid var(--sv-line-soft)',
+          }}
+          className="sm:grid-cols-3"
+        >
+          {[
+            { title: 'Free Express Shipping', desc: 'Orders over ₹999 get free expedited delivery' },
+            { title: '7 Days Easy Return',    desc: 'Hassle-free instant refund & pickup' },
+            { title: '24/7 Dedicated Support', desc: 'Live chat & phone assistance anytime' },
+          ].map(({ title, desc }) => (
+            <div key={title} style={{ borderLeft: '2px solid var(--sv-gold)', paddingLeft: '1rem' }}>
+              <p style={{ color: 'var(--sv-ink)', fontWeight: 600, fontSize: '.95rem', margin: 0 }}>{title}</p>
+              <p style={{ color: 'var(--sv-muted)', fontSize: '.82rem', marginTop: '.25rem' }}>{desc}</p>
             </div>
-            <div>
-              <h4 className="font-bold text-sm text-slate-900">7 Days Easy Return</h4>
-              <p className="text-xs text-slate-500 mt-0.5">Hassle-free instant refund & pickup</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3.5 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
-            <div className="p-2.5 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 flex-shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm text-slate-900">100% Genuine Certified</h4>
-              <p className="text-xs text-slate-500 mt-0.5">Direct from authorized brand partners</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3.5 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
-            <div className="p-2.5 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 flex-shrink-0">
-              <Headphones className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm text-slate-900">24/7 Dedicated Support</h4>
-              <p className="text-xs text-slate-500 mt-0.5">Live chat & phone assistance anytime</p>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Links Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
-          {/* Brand Info (2 cols on md) */}
-          <div className="col-span-2 space-y-3.5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md">
-                <Box className="w-4 h-4" />
-              </div>
-              <span className="text-xl font-black tracking-tight text-slate-900">
-                PRINTO<span className="text-purple-600">COMMERCE</span>
+        {/* Links grid */}
+        <div
+          style={{ display: 'grid', gap: '2rem', marginBottom: '2.5rem' }}
+          className="grid-cols-1 sm:grid-cols-3 md:grid-cols-[1.5fr_1fr_1fr]"
+        >
+          {/* Brand */}
+          <div style={{ display: 'grid', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
+              <SuvarnaIcon />
+              <span style={{ font: '600 1.5rem var(--sv-round)', color: 'var(--sv-gold)' }}>
+                Suvarna
               </span>
             </div>
-
-            <p className="text-xs text-slate-600 leading-relaxed max-w-sm">
-              India&apos;s premier online custom printing & corporate merchandising marketplace. Order business cards, personalized gifts, corporate apparel, and marketing essentials with instant real-time 3D inspection.
+            <p style={{ color: 'var(--sv-muted)', fontSize: '.88rem', lineHeight: 1.6, maxWidth: '26rem' }}>
+              India&apos;s premier custom printing &amp; corporate merchandising studio. Order business cards, personalized gifts, corporate apparel, and marketing essentials.
+            </p>
+            <p style={{ color: 'var(--sv-muted)', fontSize: '.82rem' }}>
+              <span style={{ color: 'var(--sv-ink)', fontWeight: 500 }}>Payments:</span> UPI • Cards • NetBanking • EMI
             </p>
 
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <span>Accepted Payments:</span>
-              <span className="font-semibold text-slate-700">UPI • Cards • NetBanking • EMI</span>
+            {/* Social */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', marginTop: '.5rem' }}>
+              {SOCIAL.filter((s) => s.url).map(({ name, Icon, url }) => (
+                <a
+                  key={name}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={name}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '.4rem',
+                    padding: '.4rem .8rem', borderRadius: '999px',
+                    border: '1px solid var(--sv-line)',
+                    color: 'var(--sv-ink)', textDecoration: 'none',
+                    fontSize: '.82rem', transition: 'border-color .2s, color .2s',
+                  }}
+                  className="hover:border-[--sv-gold] hover:text-[--sv-gold-2]"
+                >
+                  <Icon className="w-3.5 h-3.5" style={{ color: 'var(--sv-gold)' }} />
+                  {name}
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Categories */}
+          {/* Shop Categories */}
           <div>
-            <h5 className="font-bold text-xs uppercase tracking-wider text-purple-700 mb-3">
+            <h4 style={{ font: '600 1rem var(--sv-sans)', margin: '0 0 .9rem', color: 'var(--sv-ink)' }}>
               Shop Collections
-            </h5>
-            <ul className="space-y-2 text-xs text-slate-600">
+            </h4>
+            <div style={{ display: 'grid', gap: '.45rem' }}>
               {ECOMMERCE_CATEGORIES.map((c) => (
-                <li key={c.id}>
-                  <a href="#trending-products" className="hover:text-purple-600 transition-colors">
-                    {c.name}
-                  </a>
-                </li>
+                <a
+                  key={c.id}
+                  href="#trending-products"
+                  style={{ color: 'var(--sv-muted)', textDecoration: 'none', fontSize: '.88rem', transition: 'color .2s' }}
+                  className="hover:text-[--sv-gold-2]"
+                >
+                  {c.name}
+                </a>
               ))}
-            </ul>
+            </div>
           </div>
 
-          {/* Customer Service */}
-          <div>
-            <h5 className="font-bold text-xs uppercase tracking-wider text-purple-700 mb-3">
-              Help & Support
-            </h5>
-            <ul className="space-y-2 text-xs text-slate-600">
-              <li><a href="#" className="hover:text-purple-600 transition-colors">Track Your Order</a></li>
-              <li><a href="#" className="hover:text-purple-600 transition-colors">Shipping Rates & Policies</a></li>
-              <li><a href="#" className="hover:text-purple-600 transition-colors">Returns & Exchanges</a></li>
-              <li><a href="#" className="hover:text-purple-600 transition-colors">Artwork Proof Guidelines</a></li>
-              <li><a href="#" className="hover:text-purple-600 transition-colors">Contact Support</a></li>
-            </ul>
-          </div>
-
-          {/* Company */}
-          <div>
-            <h5 className="font-bold text-xs uppercase tracking-wider text-purple-700 mb-3">
-              About Us
-            </h5>
-            <ul className="space-y-2 text-xs text-slate-600">
-              <li><a href="#" className="hover:text-purple-600 transition-colors">Our Story</a></li>
-              <li><a href="#" className="hover:text-purple-600 transition-colors">Experience Centers</a></li>
-              <li><a href="#" className="hover:text-purple-600 transition-colors">Sustainability & Paper Stocks</a></li>
-              <li><a href="#" className="hover:text-purple-600 transition-colors">Corporate & Enterprise Bulk</a></li>
-              <li><a href="#" className="hover:text-purple-600 transition-colors">Printo Careers</a></li>
-            </ul>
+          {/* Help & Company */}
+          <div style={{ display: 'grid', gap: '1.8rem', alignContent: 'start' }}>
+            <div>
+              <h4 style={{ font: '600 1rem var(--sv-sans)', margin: '0 0 .9rem', color: 'var(--sv-ink)' }}>
+                Help &amp; Support
+              </h4>
+              <div style={{ display: 'grid', gap: '.45rem' }}>
+                {['Track Your Order', 'Shipping Rates & Policies', 'Returns & Exchanges', 'Artwork Proof Guidelines', 'Contact Support'].map((link) => (
+                  <a key={link} href="#" style={{ color: 'var(--sv-muted)', textDecoration: 'none', fontSize: '.88rem', transition: 'color .2s' }} className="hover:text-[--sv-gold-2]">
+                    {link}
+                  </a>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h4 style={{ font: '600 1rem var(--sv-sans)', margin: '0 0 .9rem', color: 'var(--sv-ink)' }}>
+                About Us
+              </h4>
+              <div style={{ display: 'grid', gap: '.45rem' }}>
+                {['Our Story', 'Experience Centers', 'Sustainability & Paper Stocks', 'Corporate & Enterprise Bulk', 'Careers'].map((link) => (
+                  <a key={link} href="#" style={{ color: 'var(--sv-muted)', textDecoration: 'none', fontSize: '.88rem', transition: 'color .2s' }} className="hover:text-[--sv-gold-2]">
+                    {link}
+                  </a>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Bottom copyright */}
-        <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© {new Date().getFullYear()} PrintoCommerce Inc. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-slate-800 transition-colors">Privacy Policy</a>
-            <span>•</span>
-            <a href="#" className="hover:text-slate-800 transition-colors">Terms of Service</a>
-            <span>•</span>
-            <a href="#" className="hover:text-slate-800 transition-colors">Security</a>
+        {/* Bottom bar */}
+        <div
+          style={{
+            borderTop: '1px solid var(--sv-line-soft)',
+            paddingTop: '1.2rem',
+            display: 'flex', flexDirection: 'column', gap: '.8rem',
+            color: 'var(--sv-muted)', fontSize: '.82rem',
+          }}
+          className="sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p style={{ margin: 0 }}>© {new Date().getFullYear()} Suvarna Custom. All rights reserved.</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {['Privacy Policy', 'Terms of Service', 'Security'].map((link) => (
+              <a key={link} href="#" style={{ color: 'var(--sv-muted)', textDecoration: 'none', transition: 'color .2s' }} className="hover:text-[--sv-ink]">
+                {link}
+              </a>
+            ))}
           </div>
         </div>
       </div>
