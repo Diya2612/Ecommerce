@@ -65,12 +65,9 @@ import type { NextConfig } from "next";
 // ];
 
 const nextConfig: NextConfig = {
-  // Ignore TypeScript and ESLint build errors to ensure Vercel deployment succeeds
+  // Ignore TypeScript build errors to ensure Vercel deployment succeeds
   typescript: {
     ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
 
   // Enable React Strict Mode for catching potential issues
